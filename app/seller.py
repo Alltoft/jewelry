@@ -105,16 +105,16 @@ def delete_product():
     data = request.get_json()
     if not data:
         return jsonify({'message': 'Missing required data'}), 400
-    product = Product.query.filter_by(product_id=data.get('product_id')).first()
+    product = Product.query.filter_by(product_id=data.get('product_id'), deleted_at=None).first()
     if not product:
         return jsonify({'message': 'Product not found'}), 404
     product.deleted_at = datetime.utcnow()
     db.session.commit()
     return jsonify({'message': 'Product deleted successfully'}), 200
 
-@app.route('/product/all', methods=['GET'])
+@app.route('/product/seller_all', methods=['GET'])
 @role_required('Seller')
-def get_products():
+def get_seller_products():
     products = Product.query.filter_by(seller_id=current_user.seller.seller_id, deleted_at = None).all()
     return jsonify([product.to_dict() for product in products]), 200
 

@@ -1,7 +1,7 @@
 from app import app, db
 from flask import request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User
+from .models import User, Product
 from datetime import datetime
 
 
@@ -41,8 +41,9 @@ def login():
     data = request.get_json()
     if not data.get('username') and not data.get('email') or not data.get('password'):
         return jsonify({'message': 'Missing required data'}), 400
-    user = User.query.filter_by(email=data.get('email')).first() or \
-            User.query.filter_by(username=data.get('username')).first()
+    user = User.query.filter_by(username=data.get('username')).first() or \
+            User.query.filter_by(email=data.get('email')).first()
+    print(user)
     if not user or not user.check_password(data.get('password')):
         return jsonify({'message': 'Invalid credentials'}), 400
     user.last_login = datetime.now()
@@ -56,13 +57,10 @@ def logout():
     logout_user()
     return jsonify({'message': 'User logged out'}), 200
 
-# @app.route('/users', methods=['POST'])
-# def create_user():
-#     pass
-
-# @app.route('/users/<int:user_id>', methods=['PUT'])
-# def update_user(user_id):
-#     pass
+@app.route('/products', methods=['GET'])
+def get_products():
+    products = Product.query.all()
+    return jsonify([product.to_dict() for product in products]), 200
 
 # @app.route('/users/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):
