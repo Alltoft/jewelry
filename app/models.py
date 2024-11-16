@@ -140,7 +140,8 @@ class Product(db.Model):
     product_quantity = db.Column(db.Integer, index=True)
     product_status = db.Column(sa.Enum('Available', 'Unavailable'), index=True)
     product_category = db.Column(db.String(64), index=True)
-    product_image = db.Column(db.String(120), index=True)
+    product_image = db.Column(db.String(40), nullable=False, default='default.jpg')
+    product_image_url = db.Column(db.String(128), nullable=False, default='default.jpg')
     product_rating = db.Column(db.Float, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -157,6 +158,7 @@ class Product(db.Model):
             'product_status': self.product_status,
             'product_category': self.product_category,
             'product_image': self.product_image,
+            'product_image_url': self.product_image_url,
             'product_rating': self.product_rating,
             'created_at': self.created_at,
             'updated_at': self.updated_at,

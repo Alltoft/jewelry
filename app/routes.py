@@ -43,13 +43,12 @@ def login():
         return jsonify({'message': 'Missing required data'}), 400
     user = User.query.filter_by(username=data.get('username')).first() or \
             User.query.filter_by(email=data.get('email')).first()
-    print(user)
     if not user or not user.check_password(data.get('password')):
         return jsonify({'message': 'Invalid credentials'}), 400
     user.last_login = datetime.now()
     db.session.commit()
     login_user(user)
-    return jsonify({'message': 'User logged in'}), 200
+    return jsonify({'message': 'User logged in', 'role': user.user_role}), 200
 
 @app.route('/logout', methods=['POST'])
 @login_required
@@ -59,7 +58,7 @@ def logout():
 
 @app.route('/products', methods=['GET'])
 def get_products():
-    products = Product.query.all()
+    products = Product.query.filter_by(deleted_at=None).all()
     return jsonify([product.to_dict() for product in products]), 200
 
 # @app.route('/users/<int:user_id>', methods=['DELETE'])

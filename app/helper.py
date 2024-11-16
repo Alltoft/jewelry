@@ -1,7 +1,24 @@
 from flask_login import current_user
 from functools import wraps
 from flask import jsonify
+import os
+import secrets
+from app import app
 
+
+
+def save_picture(file):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(file.filename)
+    final_pic = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], final_pic)
+    file.save(picture_path)
+    return final_pic
+
+def delete_picture(picture):
+    picture_path = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], picture)
+    os.remove(picture_path)
+    return True
 
 def role_required(role):
     def decorator(f):

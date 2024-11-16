@@ -1,10 +1,11 @@
-from app import app, db
+from app import app, db, allowed_file
 from flask import request, jsonify
-from flask_login import current_user, login_user, logout_user, login_required
-from .models import User, Seller, Product
-from .helper import role_required, is_verified
+from flask_login import current_user
+from .models import Seller, Product
+from .helper import role_required, is_verified, save_picture, delete_picture
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+
 
 @app.route('/seller/register', methods=['POST'])
 @role_required('Seller')
@@ -69,6 +70,7 @@ def update_seller():
 @role_required('Seller')
 def product():
     data = request.get_json()
+
     if not data.get('name') or not data.get('price'):
         return jsonify({'message': 'Missing required data'}), 400
     product = Product(
@@ -76,10 +78,34 @@ def product():
         product_name=data.get('name'),
         product_price=data.get('price'),
         product_description=data.get('description'),
+        product_quantity=data.get('quantity'),
+        product_category=data.get('category'),
+        product_status=data.get('status')
         )
     db.session.add(product)
     db.session.commit()
-    return jsonify({'message': 'Product added successfully'}), 201
+    return jsonify({'message': 'Product added successfully', 'product_id': product.product_id}), 201
+
+@app.route('/product/<product_id>/upload_image', methods=['POST'])
+@role_required('Seller')
+def upload_product_image(product_id):
+    product = Product.query.filter_by(product_id=product_id).first()
+    if not product:
+        return jsonify({'message': 'Product not found'}), 404
+    if 'file' not in request.files:
+        return jsonify({'message': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'message': 'No selected file'}), 400
+    if file and allowed_file(file.filename):
+        if product.product_image and product.product_image.split('/')[-1] != 'default.jpg':
+            delete_picture(product.product_image)
+        product.product_image = save_picture(file)
+        product.product_image_url = f"{request.host_url}static/images/product_pics/{product.product_image}"
+        print(product.product_image_url)
+        db.session.commit()
+        return jsonify({'message': 'Image uploaded successfully'}), 200
+    return jsonify({'message': 'Invalid file type'}), 400
 
 @app.route('/product/update', methods=['PUT'])
 @role_required('Seller')
