@@ -8,7 +8,6 @@ from sqlalchemy.exc import IntegrityError
 
 
 @app.route('/seller/register', methods=['POST'])
-@role_required('Seller')
 def register_seller():
     try:
         data = request.get_json()
@@ -84,6 +83,17 @@ def product():
         )
     db.session.add(product)
     db.session.commit()
+    
+    # if 'image' in request.files:
+    #     file = request.files['image']
+    #     if file and allowed_file(file.filename):
+    #         picture = save_picture(file)
+    #         product.product_image = picture
+    #         product.product_image_url = f"{request.host_url}static/images/product_pics/{picture}"
+    #         db.session.commit()
+    #     else:
+    #         return jsonify({'message': 'Invalid file type'}), 400
+
     return jsonify({'message': 'Product added successfully', 'product_id': product.product_id}), 201
 
 @app.route('/product/<product_id>/upload_image', methods=['POST'])
@@ -92,11 +102,11 @@ def upload_product_image(product_id):
     product = Product.query.filter_by(product_id=product_id).first()
     if not product:
         return jsonify({'message': 'Product not found'}), 404
-    if 'file' not in request.files:
-        return jsonify({'message': 'No file part'}), 400
-    file = request.files['file']
+    if 'image' not in request.files:
+        return jsonify({'message': 'No file part'}), 401
+    file = request.files['image']
     if file.filename == '':
-        return jsonify({'message': 'No selected file'}), 400
+        return jsonify({'message': 'No selected file'}), 402
     if file and allowed_file(file.filename):
         if product.product_image and product.product_image.split('/')[-1] != 'default.jpg':
             delete_picture(product.product_image)
@@ -105,7 +115,7 @@ def upload_product_image(product_id):
         print(product.product_image_url)
         db.session.commit()
         return jsonify({'message': 'Image uploaded successfully'}), 200
-    return jsonify({'message': 'Invalid file type'}), 400
+    return jsonify({'message': 'Invalid file type'}), 403
 
 @app.route('/product/update', methods=['PUT'])
 @role_required('Seller')

@@ -1,25 +1,38 @@
-// src/context/AuthContext.js
-import React, { createContext, useState } from 'react';
+// jsx
+import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
-export const AuthContext = createContext();
+const AuthContext = createContext();
 
-export const AuthProvider = ({ children }) => {
-  const [authState, setAuthState] = useState({
-    isAuthenticated: false,
-    user: null,
-  });
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const login = (user) => {
-    setAuthState({ isAuthenticated: true, user });
+  const loadUser = async () => {
+    try {
+      const res = await axios.get('/current_user');
+      setUser(res.data);
+    } catch (err) {
+      console.error(err.response?.data || err.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const logout = () => {
-    setAuthState({ isAuthenticated: false, user: null });
-  };
+  useEffect(() => {
+    loadUser();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <AuthContext.Provider value={{ authState, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser }}>
       {children}
     </AuthContext.Provider>
   );
 };
+
+export { AuthProvider, AuthContext };

@@ -12,14 +12,14 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
-    user_role = db.Column(sa.Enum('Seller', 'Costumer'), index=True)
+    user_role = db.Column(sa.Enum('Seller', 'Customer'), index=True)
     phone_number = db.Column(db.String(64), index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     deleted_at = db.Column(db.DateTime, index=True)
     last_login = db.Column(db.DateTime, index=True)
     seller = db.relationship('Seller', back_populates='user', uselist=False)
-    costumer = db.relationship('Costumer', back_populates='user', uselist=False)
+    customer = db.relationship('Customer', back_populates='user', uselist=False)
     # admin = db.relationship('Admin', back_populates='user', uselist=False)
 
     def set_password(self, password):
@@ -86,10 +86,10 @@ class Seller(db.Model):
     def __repr__(self):
         return '<Seller {}>'.format(self.store_name)
     
-class Costumer(db.Model):
-    costumer_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
+class Customer(db.Model):
+    customer_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
     user_id = db.Column(db.String(64), db.ForeignKey('user.user_id'), unique=True)
-    user = db.relationship('User', back_populates='costumer')
+    user = db.relationship('User', back_populates='customer')
     bank_details = db.Column(db.String(64), index=True)
     shipping_address = db.Column(db.String(64), index=True)
     brith_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -99,11 +99,11 @@ class Costumer(db.Model):
     total_purchases = db.Column(db.Integer, index=True)
     total_spent = db.Column(db.Float, index=True)
     payment_method = db.Column(sa.Enum('Credit Card', 'Debit Card', 'Paypal'), index=True)
-    order = db.relationship('Order', back_populates='costumer')
-    wishlist = db.relationship('Wishlist', back_populates='costumer')
-    cart = db.relationship('Cart', back_populates='costumer')
-    review = db.relationship('Review', back_populates='costumer')
-    # purchase_history = db.relationship('PurchaseHistory', back_populates='costumer')
+    order = db.relationship('Order', back_populates='customer')
+    wishlist = db.relationship('Wishlist', back_populates='customer')
+    cart = db.relationship('Cart', back_populates='customer')
+    review = db.relationship('Review', back_populates='customer')
+    # purchase_history = db.relationship('PurchaseHistory', back_populates='customer')
     # total_points = db.Column(db.Integer, index=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -111,7 +111,7 @@ class Costumer(db.Model):
 
     def to_dict(self):
         return {
-            'costumer_id': self.costumer_id,
+            'customer_id': self.customer_id,
             'user_id': self.user_id,
             'bank_details': self.bank_details,
             'shipping_address': self.shipping_address,
@@ -128,7 +128,7 @@ class Costumer(db.Model):
         }
 
     def __repr__(self):
-        return '<Costumer {}>'.format(self.user_id)
+        return '<Customer {}>'.format(self.user_id)
 
 class Product(db.Model):
     product_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
@@ -139,7 +139,7 @@ class Product(db.Model):
     product_price = db.Column(db.Float, index=True)
     product_quantity = db.Column(db.Integer, index=True)
     product_status = db.Column(sa.Enum('Available', 'Unavailable'), index=True)
-    product_category = db.Column(db.String(64), index=True)
+    product_category = db.Column(sa.Enum('Rings', 'Necklaces', 'Bracelets', 'Earrings', 'Watches', 'Brooches', 'Anklets', 'Cufflinks', 'Pendants', 'Charms'), index=True)
     product_image = db.Column(db.String(40), nullable=False, default='default.jpg')
     product_image_url = db.Column(db.String(128), nullable=False, default='default.jpg')
     product_rating = db.Column(db.Float, index=True)
@@ -170,8 +170,8 @@ class Product(db.Model):
 
 class Cart(db.Model):
     cart_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
-    costumer_id = db.Column(db.String(64), db.ForeignKey('costumer.costumer_id'))
-    costumer = db.relationship('Costumer', back_populates='cart')
+    customer_id = db.Column(db.String(64), db.ForeignKey('customer.customer_id'))
+    customer = db.relationship('Customer', back_populates='cart')
     product_id = db.Column(db.String(64), db.ForeignKey('product.product_id'))
     product = db.relationship('Product', backref='cart', lazy='joined')
     item_quantity = db.Column(db.Integer, default=1, index=True)
@@ -181,7 +181,7 @@ class Cart(db.Model):
     def to_dict(self):
         return {
             'cart_id': self.cart_id,
-            'costumer_id': self.costumer_id,
+            'customer_id': self.customer_id,
             'product_id': self.product_id,
             'item_quantity': self.item_quantity,
             'created_at': self.created_at,
@@ -193,8 +193,8 @@ class Cart(db.Model):
 
 class Order(db.Model):
     order_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
-    costumer_id = db.Column(db.String(64), db.ForeignKey('costumer.costumer_id'))
-    costumer = db.relationship('Costumer', back_populates='order')
+    customer_id = db.Column(db.String(64), db.ForeignKey('customer.customer_id'))
+    customer = db.relationship('Customer', back_populates='order')
     order_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     order_status = db.Column(sa.Enum('Pending', 'Delivered', 'Cancelled'), default='Pending', index=True)
     total_price = db.Column(db.Float, index=True)
@@ -207,7 +207,7 @@ class Order(db.Model):
     def to_dict(self):
         return {
             'order_id': self.order_id,
-            'costumer_id': self.costumer_id,
+            'customer_id': self.customer_id,
             'order_date': self.order_date,
             'order_status': self.order_status,
             'total_price': self.total_price,
@@ -225,8 +225,8 @@ class Order(db.Model):
 
 class Wishlist(db.Model):
     wishlist_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
-    costumer_id = db.Column(db.String(64), db.ForeignKey('costumer.costumer_id'))
-    costumer = db.relationship('Costumer', back_populates='wishlist')
+    customer_id = db.Column(db.String(64), db.ForeignKey('customer.customer_id'))
+    customer = db.relationship('Customer', back_populates='wishlist')
     product_id = db.Column(db.String(64), db.ForeignKey('product.product_id'))
     product = db.relationship('Product', backref='wishlist', lazy='joined')
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -235,7 +235,7 @@ class Wishlist(db.Model):
     def to_dict(self):
         return {
             'wishlist_id': self.wishlist_id,
-            'costumer_id': self.costumer_id,
+            'customer_id': self.customer_id,
             'product_id': self.product_id,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
@@ -246,8 +246,8 @@ class Wishlist(db.Model):
     
 class Review(db.Model):
     review_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
-    costumer_id = db.Column(db.String(64), db.ForeignKey('costumer.costumer_id'))
-    costumer = db.relationship('Costumer', back_populates='review', lazy='joined')
+    customer_id = db.Column(db.String(64), db.ForeignKey('customer.customer_id'))
+    customer = db.relationship('Customer', back_populates='review', lazy='joined')
     product_id = db.Column(db.String(64), db.ForeignKey('product.product_id'))
     product = db.relationship('Product', backref='review', lazy='joined')
     review_text = db.Column(db.String(280), index=True)
@@ -260,7 +260,7 @@ class Review(db.Model):
     def to_dict(self):
         return {
             'review_id': self.review_id,
-            'costumer_id': self.costumer_id,
+            'customer_id': self.customer_id,
             'product_id': self.product_id,
             'review_text': self.review_text,
             'review_date': self.review_date,
@@ -275,8 +275,8 @@ class Review(db.Model):
     
 class PurchaseHistory(db.Model):
     purchase_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
-    costumer_id = db.Column(db.String(64), db.ForeignKey('costumer.costumer_id'))
-    costumer = db.relationship('Costumer', backref='purchase', lazy='joined')
+    customer_id = db.Column(db.String(64), db.ForeignKey('customer.customer_id'))
+    customer = db.relationship('Customer', backref='purchase', lazy='joined')
     product_id = db.Column(db.String(64), db.ForeignKey('product.product_id'))
     product = db.relationship('Product', backref='purchase', lazy='joined')
     order_id = db.Column(db.String(64), db.ForeignKey('order.order_id'))
@@ -291,7 +291,7 @@ class PurchaseHistory(db.Model):
     def to_dict(self):
         return {
             'purchase_id': self.purchase_id,
-            'costumer_id': self.costumer_id,
+            'customer_id': self.customer_id,
             'product_id': self.product_id,
             'order_id': self.order_id,
             'purchase_date': self.purchase_date,

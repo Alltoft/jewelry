@@ -16,8 +16,6 @@ def register():
         return jsonify({'message': 'Email already exists'}), 400
     if User.query.filter_by(username=data.get('username')).first():
         return jsonify({'message': 'Username already exists'}), 400
-    if User.query.filter_by(user_role=data.get('phone_number')).first():
-        return jsonify({'message': 'Phone number already exists'}), 400
     user = User(
         name=data.get('name'),
         lastname=data.get('lastname'),
@@ -30,6 +28,7 @@ def register():
     user.set_password(data.get('password'))
     db.session.add(user)
     db.session.commit()
+    login_user(user)
     return jsonify({'message': 'User created successfully'}), 201
 
 
@@ -60,6 +59,11 @@ def logout():
 def get_products():
     products = Product.query.filter_by(deleted_at=None).all()
     return jsonify([product.to_dict() for product in products]), 200
+
+@app.route('/current_user', methods=['GET'])
+@login_required
+def get_current_user():
+    return jsonify(current_user.to_dict()), 200
 
 # @app.route('/users/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):

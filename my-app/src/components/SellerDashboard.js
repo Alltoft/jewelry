@@ -1,168 +1,209 @@
+// src/components/SellerDashboard.js
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getSellerProducts, addProduct, uploadProductImage } from '../api';
+import axios from 'axios';
 
 const SellerDashboard = () => {
-  const navigate = useNavigate();
-  const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({
+  const [formData, setFormData] = useState({
     name: '',
     price: '',
     description: '',
     quantity: '',
+    status: 'Available',
     category: '',
-    status: '',
+    image: null,
   });
-  const [productImage, setProductImage] = useState(null);
-  const [message, setMessage] = useState('');
+  
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const productStatuses = ['Available', 'Unavailable']; // Define possible statuses
-
-  const fetchProducts = async () => {
-    try {
-      const response = await getSellerProducts();
-      if (response && response.data) {
-        console.log('Fetched products:', response.data); // Log the fetched products
-        setProducts(response.data);
-      }
-    } catch (error) {
-      console.error('Error fetching seller products:', error);
-    }
-  };
-
+  // Fetch products when the component mounts
   useEffect(() => {
-    fetchProducts();
+    loadProducts();
   }, []);
 
-  const handleChange = (e) => {
-    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
-  };
-
-  const handleFileChange = (e) => {
-    setProductImage(e.target.files[0]);
-  };
-
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    // Validate quantity
-    if (isNaN(newProduct.quantity) || newProduct.quantity <= 0) {
-      setMessage('Product quantity must be a positive number');
-      return;
-    }
-    // Validate price
-    if (isNaN(newProduct.price) || newProduct.price <= 0) {
-      setMessage('Product price must be a positive number');
-      return;
-    }
-    // Validate status
-    if (!productStatuses.includes(newProduct.status)) {
-      setMessage('Invalid product status');
-      return;
-    }
+  const loadProducts = async () => {
     try {
-      const response = await addProduct({
-        name: newProduct.name,
-        description: newProduct.description,
-        price: parseFloat(newProduct.price),
-        quantity: parseInt(newProduct.quantity, 10),
-        status: newProduct.status,
-        category: newProduct.category,
-      });
-      if (response && response.data) {
-        const productId = response.data.product_id;
-        if (productId && productImage) {
-          const formData = new FormData();
-          formData.append('file', productImage);
-          await uploadProductImage(productId, formData);
-        }
-        setMessage('Product added successfully');
-        fetchProducts(); // Refresh the product list
-        setNewProduct({ name: '', price: '', description: '', quantity: '', category: '', status: '' });
-        setProductImage(null);
-      } else {
-        setMessage('Failed to add product');
-      }
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setMessage(error.response.data.message);
-      } else {
-        setMessage('An error occurred while adding the product');
-      }
+      setLoading(true);
+      const res = await axios.get('/product/seller_all'); // Adjust endpoint if needed
+      setProducts(res.data);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load products.');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const goToHome = () => {
-    navigate('/');
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { image, ...dataWithoutImage } = formData;
+
+    try {
+      // Step 1: Send product data as JSON
+      const res = await axios.post('/product/add', dataWithoutImage, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const productId = res.data.product_id;
+
+      // Step 2: Upload image separately
+      if (image) {
+        const imageData = new FormData();
+        imageData.append('image', image);
+
+        await axios.post(`/product/${productId}/upload_image`, imageData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+      }
+
+      // Reset Form
+      setFormData({
+        name: '',
+        price: '',
+        description: '',
+        quantity: '',
+        status: 'Available',
+        category: '',
+        image: null,
+      });
+      loadProducts(); // Reload products after adding a new one
+    } catch (err) {
+      console.error(err);
+      setError('Failed to add product.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div>
-      <h1>Seller Dashboard</h1>
-      <button onClick={goToHome}>Home</button>
-      <form onSubmit={handleAddProduct}>
-        <input
-          type="text"
-          name="name"
-          value={newProduct.name}
-          onChange={handleChange}
-          placeholder="Product Name"
-        />
-        <input
-          type="text"
-          name="price"
-          value={newProduct.price}
-          onChange={handleChange}
-          placeholder="Product Price"
-        />
-        <input
-          type="text"
-          name="description"
-          value={newProduct.description}
-          onChange={handleChange}
-          placeholder="Product Description"
-        />
-        <input
-          type="number"
-          name="quantity"
-          value={newProduct.quantity}
-          onChange={handleChange}
-          placeholder="Product Quantity"
-        />
-        <input
-          type="text"
-          name="category"
-          value={newProduct.category}
-          onChange={handleChange}
-          placeholder="Product Category"
-        />
-        <select
-          name="status"
-          value={newProduct.status}
-          onChange={handleChange}
-        >
-          <option value="">Select Status</option>
-          {productStatuses.map((status) => (
-            <option key={status} value={status}>
-              {status}
-            </option>
-          ))}
-        </select>
-        <input
-          type="file"
-          name="product_image"
-          onChange={handleFileChange}
-        />
-        <button type="submit">Add Product</button>
+      <h2>Seller Dashboard</h2>
+      <form onSubmit={handleSubmit}>
+        {/* Product Form Fields */}
+        <div>
+          <label htmlFor="name">Product Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="price">Price:</label>
+          <input
+            type="number"
+            id="price"
+            name="price"
+            value={formData.price}
+            onChange={handleChange}
+            required
+            min="0"
+            step="0.01"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="description">Description:</label>
+          <textarea
+            id="description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          ></textarea>
+        </div>
+        
+        <div>
+          <label htmlFor="quantity">Quantity:</label>
+          <input
+            type="number"
+            id="quantity"
+            name="quantity"
+            value={formData.quantity}
+            onChange={handleChange}
+            required
+            min="0"
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="status">Status:</label>
+          <select
+            id="status"
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            required
+          >
+            <option value="Available">Available</option>
+            <option value="Unavailable">Unavailable</option>
+          </select>
+        </div>
+        
+        <div>
+          <label htmlFor="category">Category:</label>
+          <input
+            type="text"
+            id="category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        
+        <div>
+          <label htmlFor="image">Image:</label>
+          <input
+            type="file"
+            id="image"
+            name="image"
+            onChange={handleChange}
+            accept="image/*"
+            required
+          />
+        </div>
+        
+        <button type="submit" disabled={loading}>
+          {loading ? 'Adding...' : 'Add Product'}
+        </button>
+        
+        {error && <p style={{ color: 'red' }}>{error}</p>}
       </form>
-      <p>{message}</p>
-      <h2>Products</h2>
-      <ul>
-        {products && products.map(product => (
-          <li key={product.product_id}>
-            {product.product_name || 'No Name'} - {product.product_price || 'No Price'} - {product.product_description || 'No Description'}
-          </li>
-        ))}
-      </ul>
+      
+      <h3>Products</h3>
+      {loading ? (
+        <p>Loading products...</p>
+      ) : (
+        <ul>
+          {products.map((product) => (
+            <li key={product.product_id}>
+              <strong>{product.product_name}</strong> - ${product.product_price}
+              {/* Add options to update or delete the product */}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };

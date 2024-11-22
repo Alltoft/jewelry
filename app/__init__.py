@@ -38,4 +38,4 @@ from .models import User
 def load_user(user_id):
     return User.query.get(user_id)
 
-from app import models, routes, seller, costumer
+from app import models, routes, seller, customer
