@@ -95,111 +95,121 @@ const SellerDashboard = () => {
     <div>
       <h2>Seller Dashboard</h2>
       <form onSubmit={handleSubmit}>
-        {/* Product Form Fields */}
-        <div>
-          <label htmlFor="name">Product Name:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="price">Price:</label>
-          <input
-            type="number"
-            id="price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            required
-            min="0"
-            step="0.01"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="description">Description:</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-          ></textarea>
-        </div>
-        
-        <div>
-          <label htmlFor="quantity">Quantity:</label>
-          <input
-            type="number"
-            id="quantity"
-            name="quantity"
-            value={formData.quantity}
-            onChange={handleChange}
-            required
-            min="0"
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="status">Status:</label>
-          <select
-            id="status"
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            required
-          >
-            <option value="Available">Available</option>
-            <option value="Unavailable">Unavailable</option>
-          </select>
-        </div>
-        
-        <div>
-          <label htmlFor="category">Category:</label>
-          <input
-            type="text"
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        
-        <div>
-          <label htmlFor="image">Image:</label>
-          <input
-            type="file"
-            id="image"
-            name="image"
-            onChange={handleChange}
-            accept="image/*"
-            required
-          />
-        </div>
-        
-        <button type="submit" disabled={loading}>
-          {loading ? 'Adding...' : 'Add Product'}
-        </button>
-        
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-      </form>
-      
-      <h3>Products</h3>
-      {loading ? (
-        <p>Loading products...</p>
-      ) : (
-        <ul>
-          {products.map((product) => (
-            <li key={product.product_id}>
-              <strong>{product.product_name}</strong> - ${product.product_price}
-              {/* Add options to update or delete the product */}
+          <div>
+            <label htmlFor="name">Product Name:</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="price">Price:</label>
+            <input
+              type="number"
+              id="price"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              required
+              min="0"
+              step="0.01"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="description">Description:</label>
+            <textarea
+              id="description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+            ></textarea>
+          </div>
+          
+          <div>
+            <label htmlFor="quantity">Quantity:</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
+              required
+              min="0"
+            />
+          </div>
+          
+          <div>
+            <label htmlFor="status">Status:</label>
+            <select
+              id="status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+              required
+            >
+              <option value="Available">Available</option>
+              <option value="Unavailable">Unavailable</option>
+            </select>
+          </div>
+          
+          <div>
+            <label htmlFor="category">Category:</label>
+            <select
+              id="category"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Category</option>
+              <option value="Rings">Rings</option>
+              <option value="Necklaces">Necklaces</option>
+              <option value="Bracelets">Bracelets</option>
+              <option value="Earrings">Earrings</option>
+              <option value="Watches">Watches</option>
+              <option value="Brooches">Brooches</option>
+              <option value="Anklets">Anklets</option>
+              <option value="Cufflinks">Cufflinks</option>
+              <option value="Pendants">Pendants</option>
+              <option value="Charms">Charms</option>
+            </select>
+          </div>
+          
+          <div>
+            <label htmlFor="image">Image:</label>
+            <input
+              type="file"
+              id="image"
+              name="image"
+              onChange={handleChange}
+              accept="image/*"
+              required
+            />
+          </div>
+          
+          <button type="submit" disabled={loading}>
+            {loading ? 'Adding...' : 'Add Product'}
+          </button>
+          
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+              </form>
+              
+              <h3>Products</h3>
+              {loading ? (
+          <p>Loading products...</p>
+              ) : (
+          <ul>
+            {products.map((product) => (
+              <li key={product.product_id}>
+                <strong>{product.product_name}</strong> - ${product.product_price}
+                {/* Add options to update or delete the product */}
             </li>
           ))}
         </ul>

@@ -6,9 +6,6 @@ import { AuthContext } from '../context/AuthContext';
 const PrivateRoute = ({ children, role }) => {
   const { user } = useContext(AuthContext);
 
-  console.log('User:', user);
-  console.log('Required role:', role);
-
   if (!user) {
     // User is not authenticated
     return <Navigate to="/login" />;
