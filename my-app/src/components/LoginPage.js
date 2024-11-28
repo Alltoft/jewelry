@@ -29,6 +29,7 @@ const LoginPage = () => {
       });
       setUser(res.data);
       navigate('/');
+      window.location.reload();
     } catch (err) {
       setError(err.response.data.message || 'Login failed. Please try again.');
     }

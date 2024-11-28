@@ -1,7 +1,7 @@
 import React from 'react';
 import { logoutUser } from '../api';
 
-const Logout = ({ onLogout }) => {
+const Logout = ({ onLogout, className }) => {
   const handleLogout = async () => {
     try {
       await logoutUser();
@@ -12,7 +12,9 @@ const Logout = ({ onLogout }) => {
   };
 
   return (
-    <button onClick={handleLogout}>Logout</button>
+    <button onClick={handleLogout} className={className}>
+      Logout
+    </button>
   );
 };
 

@@ -20,8 +20,10 @@ login = LoginManager(app)
 login.login_view = 'login'
 
 
-UPLOAD_FOLDER = os.path.join(app.root_path, 'static/images/product_pics')
+UPLOAD_FOLDER = 'static/images/product_pics'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
+app.config['TEMP_UPLOAD_FOLDER'] = 'static/images/temp'
 
 # Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):

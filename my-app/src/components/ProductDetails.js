@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import Loading from './Loading';
 
 const ProductDetails = ({ match }) => {
   const { user } = useContext(AuthContext);
@@ -29,7 +30,7 @@ const ProductDetails = ({ match }) => {
     loadProduct();
   }, []);
 
-  if (!product) return <div>Loading...</div>;
+  if (!product) return <Loading />;
 
   return (
     <div>

@@ -1,15 +1,17 @@
 // jsx
 import React from 'react';
-import { Link } from 'react-router-dom';
+import './ProductCard.css'; // Create and style as needed
 
 const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
-      <Link to={`/product/${product.product_id}`}>
-        <img src={product.product_image_url} alt={product.product_name} />
-        <h3>{product.product_name}</h3>
-        <p>${product.product_price}</p>
-      </Link>
+      <img src={`static/images/product_pics/${product.product_image}`} alt={product.product_name} className="product-image" />
+      <h3 className="product-name">{product.product_name}</h3>
+      <p className="product-description">{product.product_description}</p>
+      <p className="product-price">${product.product_price}</p>
+      <button className="buy-button" aria-label={`Buy ${product.product_name}`}>
+        Buy Now
+      </button>
     </div>
   );
 };

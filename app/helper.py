@@ -15,6 +15,14 @@ def save_picture(file):
     file.save(picture_path)
     return final_pic
 
+def save_temp_picture(file):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(file.filename)
+    final_pic = random_hex + f_ext
+    picture_path = os.path.join(app.root_path, app.config["TEMP_UPLOAD_FOLDER"], final_pic)
+    file.save(picture_path)
+    return final_pic
+
 def delete_picture(picture):
     picture_path = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], picture)
     os.remove(picture_path)

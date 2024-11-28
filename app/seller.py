@@ -1,10 +1,16 @@
 from app import app, db, allowed_file
 from flask import request, jsonify
 from flask_login import current_user
-from .models import Seller, Product
-from .helper import role_required, is_verified, save_picture, delete_picture
+from .models import Seller, Product, ProductImage
+from .helper import role_required, is_verified, save_picture, delete_picture, save_temp_picture
 from datetime import datetime
 from sqlalchemy.exc import IntegrityError
+from werkzeug.utils import secure_filename
+import os
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
 
 
 @app.route('/seller/register', methods=['POST'])
@@ -111,11 +117,30 @@ def upload_product_image(product_id):
         if product.product_image and product.product_image.split('/')[-1] != 'default.jpg':
             delete_picture(product.product_image)
         product.product_image = save_picture(file)
-        product.product_image_url = f"{request.host_url}static/images/product_pics/{product.product_image}"
-        print(product.product_image_url)
         db.session.commit()
         return jsonify({'message': 'Image uploaded successfully'}), 200
     return jsonify({'message': 'Invalid file type'}), 403
+
+@app.route('/product/<product_id>/upload_images', methods=['POST'])
+@role_required('Seller')
+def upload_product_images(product_id):
+    product = Product.query.filter_by(product_id=product_id).first()
+    if not product:
+        return jsonify({'message': 'Product not found'}), 404
+    if 'images' not in request.files:
+        return jsonify({'message': 'No file part'}), 401
+    files = request.files.getlist('images')
+    for file in files:
+        if file.filename == '':
+            return jsonify({'message': 'No selected file'}), 402
+        if file and allowed_file(file.filename):
+            image = save_picture(file)
+            product_image = ProductImage(product_id=product.product_id, image=image)
+            db.session.add(product_image)
+        else:
+            return jsonify({'message': 'Invalid file type'}), 403
+    db.session.commit()
+    return jsonify({'message': 'Images uploaded successfully'}), 200
 
 @app.route('/product/update', methods=['PUT'])
 @role_required('Seller')
@@ -145,6 +170,8 @@ def delete_product():
     if not product:
         return jsonify({'message': 'Product not found'}), 404
     product.deleted_at = datetime.utcnow()
+    os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], product.product_image))
+    os.remove(os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], (image for image in product.images)))
     db.session.commit()
     return jsonify({'message': 'Product deleted successfully'}), 200
 
@@ -153,6 +180,75 @@ def delete_product():
 def get_seller_products():
     products = Product.query.filter_by(seller_id=current_user.seller.seller_id, deleted_at = None).all()
     return jsonify([product.to_dict() for product in products]), 200
+
+@app.route('/upload_temp_image', methods=['POST'])
+@role_required('Seller')
+def upload_temp_image():
+    if 'image' not in request.files:
+        return jsonify({'message': 'No file part'}), 401
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'message': 'No selected file'}), 402
+    if file and allowed_file(file.filename):
+        image = save_temp_picture(file)
+        image_url = f"{request.host_url}static/images/temp/{image}"
+        return jsonify({'image_url': image_url}), 200
+    return jsonify({'message': 'Invalid file type'}), 403
+
+@app.route('/product/<product_id>/associate_images', methods=['POST'])
+@role_required('Seller')
+def associate_images(product_id):
+    try:
+        if 'images' not in request.form:
+            logging.error('No images provided in the request.')
+            return jsonify({'message': 'No images provided'}), 400
+
+        images = request.form.getlist('images')
+        logging.debug(f'Received images to associate: {images}')
+
+        product = Product.query.get(product_id)
+        if not product:
+            logging.error(f'Product with ID {product_id} not found.')
+            return jsonify({'message': 'Product not found'}), 404
+
+        for image_url in images:
+            # Extract filename from URL
+            filename = os.path.basename(image_url)
+            logging.debug(f'Processing image filename: {filename}')
+
+            temp_path = os.path.join(app.root_path, app.config['TEMP_UPLOAD_FOLDER'], filename)
+            final_path = os.path.join(app.root_path, app.config['UPLOAD_FOLDER'], filename)
+
+            logging.debug(f'Temp path: {temp_path}')
+            logging.debug(f'Final path: {final_path}')
+
+            # Check if the temp file exists
+            if not os.path.exists(temp_path):
+                logging.error(f'Temporary file does not exist: {temp_path}')
+                return jsonify({'message': f'Temporary file {filename} does not exist'}), 400
+
+            # Move the file using shutil.move to handle cross-filesystem moves
+            import shutil
+            try:
+                shutil.move(temp_path, final_path)
+                logging.debug(f'File moved from {temp_path} to {final_path}')
+            except Exception as move_error:
+                logging.error(f'Error moving file {filename}: {move_error}')
+                return jsonify({'message': f'Failed to move file {filename}', 'error': str(move_error)}), 500
+
+            # Save to database
+            product_image = ProductImage(product_id=product_id, image=filename)
+            db.session.add(product_image)
+            logging.debug(f'Image {filename} associated with product ID {product_id}')
+
+        db.session.commit()
+        logging.info('All images associated successfully.')
+        return jsonify({'message': 'Images associated successfully'}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        logging.exception('An error occurred while associating images.')
+        return jsonify({'message': 'Failed to associate images', 'error': str(e)}), 500
 
 # @app.route('/seller/is_verified', methods=['GET'])
 # @role_required('Seller')

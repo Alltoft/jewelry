@@ -1,0 +1,8 @@
+/* my-app/src/components/Loading.css */
+
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80vh; /* Adjust to position the loader appropriately */
+}

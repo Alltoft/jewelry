@@ -130,6 +130,12 @@ class Customer(db.Model):
     def __repr__(self):
         return '<Customer {}>'.format(self.user_id)
 
+class ProductImage(db.Model):
+    image_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
+    product_id = db.Column(db.String(64), db.ForeignKey('product.product_id'))
+    image = db.Column(db.String(128), nullable=True)
+    product = db.relationship('Product', back_populates='images')
+
 class Product(db.Model):
     product_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
     seller_id = db.Column(db.String(64), db.ForeignKey('seller.seller_id'))
@@ -141,8 +147,7 @@ class Product(db.Model):
     product_status = db.Column(sa.Enum('Available', 'Unavailable'), index=True)
     product_category = db.Column(sa.Enum('Rings', 'Necklaces', 'Bracelets', 'Earrings', 'Watches', 'Brooches', 'Anklets', 'Cufflinks', 'Pendants', 'Charms'), index=True)
     product_image = db.Column(db.String(40), nullable=False, default='default.jpg')
-    product_image_url = db.Column(db.String(128), nullable=False, default='default.jpg')
-    product_rating = db.Column(db.Float, index=True)
+    images = db.relationship('ProductImage', back_populates='product', cascade='all, delete-orphan')
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     deleted_at = db.Column(db.DateTime, index=True)
@@ -158,8 +163,7 @@ class Product(db.Model):
             'product_status': self.product_status,
             'product_category': self.product_category,
             'product_image': self.product_image,
-            'product_image_url': self.product_image_url,
-            'product_rating': self.product_rating,
+            'images': [image.image for image in self.images],
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'deleted_at': self.deleted_at
