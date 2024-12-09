@@ -1,0 +1,15 @@
+/* WishlistPage.css */
+
+.wishlist-page {
+  padding: 20px;
+}
+
+.wishlist-page h2 {
+  margin-bottom: 20px;
+}
+
+.product-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}

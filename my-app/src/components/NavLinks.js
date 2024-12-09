@@ -13,6 +13,7 @@ const NavLinks = () => {
 
   return (
     <>
+      <li><Link to="/">Home</Link></li>
       <li><Link to="/terms">Terms</Link></li>
       <li><Link to="/privacy">Privacy Policy</Link></li>
       {(!user || user.user_role !== 'Seller') && (

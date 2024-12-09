@@ -25,12 +25,21 @@ import CollectionsPage from './components/CollectionsPage';
 import FAQPage from './components/FAQPage';
 import TermsAndConditionsPage from './components/TermsAndConditionsPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
+import NavLinks from './components/NavLinks';
+import PaymentsPage from './components/PaymentsPage';
+import './App.css';
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Routes>
+      <nav className="navbar">
+        <h1>My Store</h1>
+        <ul className="nav-links">
+          <NavLinks />
+        </ul>
+      </nav>
+      <Routes>
           <Route
             path="/"
             element={
@@ -122,7 +131,6 @@ function App() {
           <Route
             path="/cart"
             element={
-              <PrivateRoute role="Customer">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -130,13 +138,11 @@ function App() {
                 >
                   <CartPage />
                 </motion.div>
-              </PrivateRoute>
             }
           />
           <Route
             path="/wishlist"
             element={
-              <PrivateRoute role="Customer">
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -144,7 +150,6 @@ function App() {
                 >
                   <WishlistPage />
                 </motion.div>
-              </PrivateRoute>
             }
           />
           <Route
@@ -244,6 +249,18 @@ function App() {
                 exit={{ opacity: 0 }}
               >
                 <PrivacyPolicyPage />
+              </motion.div>
+            }
+          />
+          <Route
+            path="/payments"
+            element={
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <PaymentsPage />
               </motion.div>
             }
           />

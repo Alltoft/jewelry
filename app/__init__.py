@@ -5,12 +5,15 @@ from flask_login import LoginManager
 import os
 from dotenv import load_dotenv
 from flask_cors import CORS
+from .payment import payment_bp
+
 
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+app.register_blueprint(payment_bp)
 
 
 CORS(app, supports_credentials=True)

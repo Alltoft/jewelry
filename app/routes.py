@@ -65,6 +65,13 @@ def get_products():
 def get_current_user():
     return jsonify(current_user.to_dict()), 200
 
+@app.route('/product/<product_id>', methods=['GET'])
+def get_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'message': 'Product not found'}), 404
+    return jsonify(product.to_dict()), 200
+
 # @app.route('/users/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):
 #     pass

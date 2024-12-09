@@ -37,12 +37,6 @@ const Home = () => {
 
   return (
     <div>
-      <nav className="navbar">
-        <h1>My Store</h1>
-        <ul className="nav-links">
-          <NavLinks />
-        </ul>
-      </nav>
       <section className="hero-banner">
         <div className="hero-content">
           <h1>Exquisite Jewelry for Every Occasion</h1>

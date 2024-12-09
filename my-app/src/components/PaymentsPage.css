@@ -1,0 +1,90 @@
+/* src/components/PaymentsPage.css */
+
+form {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.StripeElement {
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.success-message {
+  text-align: center;
+  padding: 20px;
+}
+
+.checkmark-container {
+  display: inline-block;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: #4caf50;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.checkmark {
+  display: block;
+  width: 40px;
+  height: 20px;
+  border-left: 5px solid white;
+  border-bottom: 5px solid white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  animation: checkmark-animation 0.5s ease-in-out forwards;
+}
+
+@keyframes checkmark-animation {
+  0% {
+    width: 0;
+    height: 0;
+  }
+  50% {
+    width: 40px;
+    height: 0;
+  }
+  100% {
+    width: 40px;
+    height: 20px;
+  }
+}

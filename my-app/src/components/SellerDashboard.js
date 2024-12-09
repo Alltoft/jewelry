@@ -20,7 +20,6 @@ const SellerDashboard = () => {
   const [selectedAdditionalImage, setSelectedAdditionalImage] = useState(null); // Currently selected additional image file
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [uploadingAdditionalImage, setUploadingAdditionalImage] = useState(false);
   const [error, setError] = useState(null);
   const [showAddProduct, setShowAddProduct] = useState(false); // New state
   const [uploadingImage, setUploadingImage] = useState(false); // Added state for uploading image
