@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Heart, Eye} from 'lucide-react';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
@@ -9,15 +10,37 @@ const ProductCard = ({ product }) => {
     navigate(`/product/${product.product_id}`);
   };
 
+  const handleWishlist = (e) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="product-card">
-      <img src={`static/images/product_pics/${product.product_image}`} alt={product.product_name} className="product-image" />
-      <h3 className="product-name">{product.product_name}</h3>
-      <p className="product-description">{product.product_description}</p>
-      <p className="product-price">${product.product_price}</p>
-      <button className="buy-button" aria-label={`Buy ${product.product_name}`} onClick={handleBuyNow}>
-        Buy Now
-      </button>
+    <div 
+      className="product-card"
+    >
+      <div className="product-image-container">
+        <img 
+          src={`static/images/product_pics/${product.product_image}`} 
+          alt={product.product_name} 
+          className="product-image"
+        />
+        <div className="product-overlay">
+          <button 
+            className="action-button wishlist-button" 
+            onClick={handleWishlist}
+            aria-label="Add to wishlist"
+          >
+            <Heart size={18} />
+          </button>
+          <button 
+            className="action-button view-button"
+            onClick={handleBuyNow}
+            aria-label="Quick view"
+          >
+            <Eye size={18} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

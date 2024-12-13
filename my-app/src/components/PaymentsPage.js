@@ -69,6 +69,7 @@ const CheckoutForm = ({ amount }) => {
       } else {
         if (result.paymentIntent.status === 'succeeded') {
           setSuccess(true);
+          axios.post('/sold');
           localStorage.removeItem('guestCart');
           setTimeout(() => {
             if (localStorage.getItem('guestWishlist')) {

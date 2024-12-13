@@ -1,48 +1,234 @@
-/* my-app/src/index.css */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
+
 :root {
-  --primary-color: #b8860b;
-  --secondary-color: #daa520;
-  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  /* Main color palette */
+  --primary-color: #8B7355;      /* Marble white - main brand color */
+  --secondary-color: #606060;    /* Antique bronze */
+  --accent-color: #2F4F4F;       /* Deep slate - sophisticated accent */
+  
+  /* Marble theme colors */
+  --marble-light: #F5F5F5;       /* Light marble */
+  --marble-medium: #E5E5E5;      /* Medium marble */
+  --marble-dark: #CCCCCC;        /* Dark marble veining */
+  --marble-shadow: #A9A9A9;      /* Marble shadow tone */
+  
+  /* Luxury accent colors */
+  --emerald: #0B6B59;           /* Deep emerald */
+  --onyx: #353535;              /* Rich black */
+  --pearl: #F8F6F4;             /* Pearl white */
+  --platinum: #E5E4E2;          /* Platinum accent */
+  
+  /* Text colors */
+  --text-primary: #2C2C2C;      /* Deep charcoal for headings */
+  --text-secondary: #4A4A4A;    /* Rich gray for body text */
+  --text-light: #F8F6F4;        /* Light text on dark backgrounds */
+  
+  /* Background colors */
+  --background-light: var(--pearl);
+  --background-dark: var(--onyx);
+  --background-gradient: linear-gradient(
+    45deg,
+    rgba(218, 218, 218, 0.3),
+    rgba(229, 228, 226, 0.3)
+  );
+  
+  /* Overlay effects */
+  --overlay-light: rgba(248, 246, 244, 0.9);
+  --overlay-dark: rgba(53, 53, 53, 0.8);
+  
+  /* Typography */
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Montserrat', sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 2rem;
+  --spacing-lg: 4rem;
+  
+  /* Effects */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --border-radius: 2px;
+  --box-shadow: 
+    0 10px 30px -10px rgba(53, 53, 53, 0.1),
+    0 5px 15px -5px rgba(53, 53, 53, 0.05);
+  
+  /* Container */
+  --container-width: 1200px;
+  --container-padding: 2rem;
+
+  /* Grid */
+  --grid-gap: 2rem;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: var(--font-family);
-  background-color: #f5f5f5;
+  font-family: var(--font-body);
+  background-color: var(--background-light);
+  color: var(--text-primary);
+  line-height: 1.6;
 }
 
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Enhanced Navbar Styles in index.css */
 .navbar {
-  background-color: var(--primary-color);
-  padding: 10px 20px;
-  color: white;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.98),
+    rgba(255, 255, 255, 0.96)
+  );
+  padding: 1.2rem 0;
+  border-bottom: 1px solid rgba(139, 115, 85, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.nav-links li {
-  display: inline;
-  margin-right: 15px;
+.navbar.scrolled {
+  padding: 0.8rem 0;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: 2px;
+  font-weight: 500;
+}
+
+.nav-links {
+  display: flex;
+  gap: 2.5rem;
+  align-items: center;
+  list-style: none;
 }
 
 .nav-links a {
-  color: white;
+  color: var(--text-primary);
   text-decoration: none;
-  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  transition: all 0.3s ease;
+  padding: 0.5rem 0;
+  position: relative;
+  font-weight: 400;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: var(--deep-emerald);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
 }
 
 .nav-links a:hover {
-  text-decoration: underline;
+  color: var(--deep-emerald);
 }
 
-.nav-button {
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+.button {
+  background-color: var(--secondary-color);
   color: white;
-  background: none;
+  padding: 0.8rem 1.5rem;
   border: none;
-  padding: 0;
-  font: inherit;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   cursor: pointer;
-  text-decoration: none;
-  font-weight: bold;
+  transition: var(--transition);
 }
 
-.nav-button:hover {
-  text-decoration: underline;
+.button:hover {
+  background-color: var(--primary-color);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--secondary-color);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  
+  .nav-container {
+    padding: 0 1rem;
+  }
+  
+  .container {
+    padding: 1rem;
+  }
+  
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

@@ -1,7 +1,7 @@
 from app import app, db
 from flask import request, jsonify
 from flask_login import current_user, login_user, logout_user, login_required
-from .models import User, Product
+from .models import User, Product, Order
 from datetime import datetime
 
 
@@ -72,6 +72,15 @@ def get_product(product_id):
         return jsonify({'message': 'Product not found'}), 404
     return jsonify(product.to_dict()), 200
 
+@app.route('/sold', methods=['POST'])
+def sold():
+    order = Order(
+        order_status='Pending',
+        created_at=datetime.now()
+    )
+    db.session.add(order)
+    db.session.commit()
+    return jsonify({'message': 'Order created successfully'}), 201
 # @app.route('/users/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):
 #     pass

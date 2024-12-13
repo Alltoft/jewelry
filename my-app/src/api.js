@@ -10,6 +10,7 @@ export const registerUser = (data) => api.post('/register', data);
 export const loginUser = (data) => api.post('/login', data);
 export const logoutUser = () => api.post('/logout');
 export const getProducts = () => api.get('/products');
+export const SoldProduct = () => api.post('/sold');
 
 // Seller endpoints
 export const registerSeller = (data) => api.post('/seller/register', data);

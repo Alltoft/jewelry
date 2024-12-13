@@ -10,7 +10,7 @@ const CollectionsPage = () => {
   useEffect(() => {
     const fetchCollections = async () => {
       try {
-        const res = await axios.get('/api/collections');
+        const res = await axios.get('/products');
         setCollections(res.data);
       } catch (err) {
         console.error(err);
