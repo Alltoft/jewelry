@@ -82,10 +82,16 @@ def product():
         seller_id=current_user.seller.seller_id,
         product_name=data.get('name'),
         product_price=data.get('price'),
+        original_price=data.get('original_price'),
+        product_style=data.get('style'),
+        product_weight=data.get('weight'),
+        product_gemstone=data.get('gemstone'),
+        product_refference=data.get('refference'),
         product_description=data.get('description'),
         product_quantity=data.get('quantity'),
         product_category=data.get('category'),
-        product_status=data.get('status')
+        product_status=data.get('status'),
+        product_material=data.get('material'),
         )
     db.session.add(product)
     db.session.commit()

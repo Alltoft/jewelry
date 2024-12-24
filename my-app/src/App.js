@@ -14,9 +14,9 @@ import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import SellerDashboard from './components/SellerDashboard';
 import CustomerDashboard from './components/CustomerDashboard';
-import ProductDetails from './components/ProductDetails';
+import ProductDetailsPage from './components/ProductDetailsPage';
 import CartPage from './components/CartPage';
-import WishlistPage from './components/WishlistPage';
+import WishlistPage from './components/wishlistpage/wishindex';
 import OrdersPage from './components/OrdersPage';
 import Logout from './components/Logout';
 import AboutPage from './components/AboutPage';
@@ -26,8 +26,9 @@ import FAQPage from './components/FAQPage';
 import TermsAndConditionsPage from './components/TermsAndConditionsPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
 import NavLinks from './components/NavLinks';
-import PaymentsPage from './components/PaymentsPage';
-import Footer from './components/Footer'; // Add this import
+import CheckoutPage from './components/Checkout/CheckoutPage';
+import Footer from './components/Footer';
+import Store from './components/Store';
 import './App.css';
 
 function App() {
@@ -129,7 +130,7 @@ function App() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    <ProductDetails />
+                    <ProductDetailsPage />
                   </motion.div>
                 }
               />
@@ -258,14 +259,26 @@ function App() {
                 }
               />
               <Route
-                path="/payments"
+                path="/checkout"
                 element={
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                   >
-                    <PaymentsPage />
+                    <CheckoutPage />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/store"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <Store />
                   </motion.div>
                 }
               />

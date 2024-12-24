@@ -80,7 +80,7 @@ def remove_wishlist():
     return jsonify({'message': 'Product removed from wishlist'}), 200
 
 @app.route('/wishlist', methods=['GET'])
-@role_required('Customer')
+# @role_required('Customer')
 def get_wishlist():
     print(current_user.customer.wishlist)
     return jsonify([product.to_dict() for product in current_user.customer.wishlist]), 200

@@ -1,17 +1,46 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Eye} from 'lucide-react';
+import { Heart, Eye, Check } from 'lucide-react';
+import { addWishlist } from '../api';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
+  const [isInWishlist, setIsInWishlist] = useState(() => {
+    const localWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    return localWishlist.some(item => item.product_id === product.product_id);
+  });
+
+  const isAuthenticated = () => {
+    return localStorage.getItem('token') !== null;
+  };
+
+  const saveToLocalWishlist = (product) => {
+    const localWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    if (!localWishlist.some(item => item.product_id === product.product_id)) {
+      localWishlist.push(product);
+      localStorage.setItem('wishlist', JSON.stringify(localWishlist));
+      setIsInWishlist(true);
+    }
+  };
+
+  const handleWishlist = async (e) => {
+    e.stopPropagation();
+    
+    try {
+      if (isAuthenticated()) {
+        await addWishlist({ product_id: product.product_id });
+        setIsInWishlist(true);
+      } else {
+        saveToLocalWishlist(product);
+      }
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+    }
+  };
 
   const handleBuyNow = () => {
     navigate(`/product/${product.product_id}`);
-  };
-
-  const handleWishlist = (e) => {
-    e.stopPropagation();
   };
 
   return (
@@ -26,16 +55,18 @@ const ProductCard = ({ product }) => {
         />
         <div className="product-overlay">
           <button 
-            className="action-button wishlist-button" 
+            className={`action-button wishlist-button-1 ${isInWishlist ? 'active' : ''}`}
             onClick={handleWishlist}
-            aria-label="Add to wishlist"
+            aria-label={isInWishlist ? "Added to wishlist" : "Add to wishlist"}
+            style={{ display: window.location.pathname === '/wishlist' ? 'none' : 'block' }}
           >
-            <Heart size={18} />
+            {isInWishlist ? <Check size={18} /> : <Heart size={18} />}
           </button>
           <button 
             className="action-button view-button"
             onClick={handleBuyNow}
             aria-label="Quick view"
+            style={{ display: window.location.pathname === '/wishlist' ? 'none' : 'block' }}
           >
             <Eye size={18} />
           </button>

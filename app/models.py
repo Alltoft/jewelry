@@ -143,10 +143,16 @@ class Product(db.Model):
     product_name = db.Column(db.String(64), index=True)
     product_description = db.Column(db.String(120), index=True)
     product_price = db.Column(db.Float, index=True)
+    original_price = db.Column(db.Float, index=True)
+    product_style = db.Column(db.String(64), index=True)
+    product_weight = db.Column(db.Float, index=True)
     product_quantity = db.Column(db.Integer, index=True)
+    product_gemstone = db.Column(db.String(64), index=True)
+    product_refference = db.Column(db.String(64), index=True)
     product_status = db.Column(sa.Enum('Available', 'Unavailable'), index=True)
     product_category = db.Column(sa.Enum('Rings', 'Necklaces', 'Bracelets', 'Earrings', 'Watches', 'Brooches', 'Anklets', 'Cufflinks', 'Pendants', 'Charms'), index=True)
     product_image = db.Column(db.String(40), nullable=False, default='default.jpg')
+    product_material = db.Column(sa.Enum('Gold', 'Silver', 'Platinum', 'Diamond', 'Pearl', 'Emerald', 'Ruby', 'Sapphire'), index=True)
     images = db.relationship('ProductImage', back_populates='product', cascade='all, delete-orphan')
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -159,9 +165,15 @@ class Product(db.Model):
             'product_name': self.product_name,
             'product_description': self.product_description,
             'product_price': self.product_price,
+            'original_price': self.original_price,
+            'product_style': self.product_style,
+            'product_weight': self.product_weight,
             'product_quantity': self.product_quantity,
             'product_status': self.product_status,
             'product_category': self.product_category,
+            'product_gemstone': self.product_gemstone,
+            'product_refference': self.product_refference,
+            'product_material': self.product_material,
             'product_image': self.product_image,
             'images': [image.image for image in self.images],
             'created_at': self.created_at,

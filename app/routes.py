@@ -74,6 +74,9 @@ def get_product(product_id):
 
 @app.route('/sold', methods=['POST'])
 def sold():
+    # remove cart items
+    # update product stock
+    # create order
     order = Order(
         order_status='Pending',
         created_at=datetime.now()

@@ -1,4 +1,3 @@
-// my-app/src/components/NavLinks.js
 import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -7,122 +6,142 @@ import {
   ShoppingBag, 
   Heart, 
   User, 
-  Search, 
-  PhoneCall, 
-  Gift, 
-  Crown 
+  Crown,
+  Diamond,
+  GemIcon,
+  Watch,
+  Diamond as Ring
 } from 'lucide-react';
 import Logout from './Logout';
 import './NavLinks.css';
 
 const NavLinks = () => {
   const { user } = useContext(AuthContext);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleLogout = () => {
     window.location.reload();
   };
 
   return (
-    <div className="nav-container">
+    <nav className="luxury-nav">
       <div className="nav-section main-nav">
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/store" className="collection-btn">Store</Link></li>
-        
-        <li className="dropdown">
-          <Link to="/collections">
-            Collections <ChevronDown size={16} />
+        <div className="nav-group">
+          <Link to="/" className="nav-logo">
+            <Diamond className="logo-icon" />
+            <span>LUXE</span>
           </Link>
-          <div className="dropdown-content mega-menu">
-            <div className="menu-section">
-              <h4>Fine Jewelry</h4>
-              <Link to="/collections/rings">Rings</Link>
-              <Link to="/collections/necklaces">Necklaces</Link>
-              <Link to="/collections/earrings">Earrings</Link>
-              <Link to="/collections/bracelets">Bracelets</Link>
-            </div>
-            <div className="menu-section">
-              <h4>Luxury Selection</h4>
-              <Link to="/collections/watches">Watches</Link>
-              <Link to="/collections/high-jewelry">High Jewelry</Link>
-              <Link to="/collections/bridal">Bridal Collection</Link>
-            </div>
-            <div className="menu-section featured">
-              <h4>Highlights</h4>
-              <Link to="/new-arrivals" className="featured-link">
-                New Arrivals <span className="badge">New</span>
+          
+          <div className="nav-links primary-links">
+            <div className="dropdown">
+              <Link to="/collections" className="nav-link">
+                Collections <ChevronDown className="dropdown-icon" />
               </Link>
-              <Link to="/collections/bestsellers">Bestsellers</Link>
+              <div className="mega-menu">
+                <div className="menu-grid">
+                  <div className="menu-category">
+                    <h4><Ring className="category-icon" /> Fine Jewelry</h4>
+                    <Link to="/collections/rings">Rings</Link>
+                    <Link to="/collections/necklaces">Necklaces</Link>
+                    <Link to="/collections/earrings">Earrings</Link>
+                    <Link to="/collections/bracelets">Bracelets</Link>
+                  </div>
+                  
+                  <div className="menu-category">
+                    <h4><Watch className="category-icon" /> Timepieces</h4>
+                    <Link to="/collections/luxury-watches">Luxury Watches</Link>
+                    <Link to="/collections/limited-editions">Limited Editions</Link>
+                    <Link to="/collections/watch-accessories">Accessories</Link>
+                  </div>
+                  
+                  <div className="menu-category">
+                    <h4><GemIcon className="category-icon" /> High Jewelry</h4>
+                    <Link to="/collections/high-jewelry">Haute Joaillerie</Link>
+                    <Link to="/collections/bridal">Bridal Collection</Link>
+                    <Link to="/collections/bespoke">Bespoke Pieces</Link>
+                  </div>
+                </div>
+                
+                <div className="featured-section">
+                  <div className="featured-card">
+                    <h5>New Arrivals</h5>
+                    <Link to="/new-arrivals" className="featured-link">
+                      Discover Latest Pieces
+                      <span className="new-badge">New</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
+            
+            <Link to="/store" className="nav-link">Store</Link>
+            <Link to="/about" className="nav-link">About</Link>
+            
+            {user?.user_role === 'VIP' && (
+              <Link to="/vip" className="nav-link vip-link">
+                <Crown className="vip-icon" />
+                VIP Access
+              </Link>
+            )}
           </div>
-        </li>
+        </div>
       </div>
 
-      <div className="nav-section center-nav">
-        {user?.user_role === 'VIP' && (
-          <li className="dropdown vip-menu">
-            <Link to="/vip">
-              <Crown size={16} /> VIP Exclusive
-            </Link>
-          </li>
-        )}
-      </div>
-
-      <div className="nav-section end-nav">
+      <div className="nav-section secondary-nav">
         <div className="nav-actions">
-          <li>
-            <button className="nav-icon-button">
-              <Search size={18} />
-            </button>
-          </li>
           {(!user || user.user_role !== 'Seller') && (
             <>
-              <li>
-                <Link to="/wishlist" className="nav-icon-button">
-                  <Heart size={18} />
-                </Link>
-              </li>
-              <li>
-                <Link to="/cart" className="nav-icon-button">
-                  <ShoppingBag size={18} />
-                </Link>
-              </li>
+              <Link to="/wishlist" className="icon-button">
+                <Heart className="action-icon" />
+              </Link>
+              <Link to="/cart" className="icon-button">
+                <ShoppingBag className="action-icon" />
+              </Link>
             </>
           )}
-        </div>
-
-        <div className="nav-divider"></div>
-
-        {user ? (
-          <li className="dropdown account-menu">
-            <Link to="#" className="account-link">
-              <User size={18} /> <span>Account</span> <ChevronDown size={16} />
-            </Link>
-            <div className="dropdown-content">
-              {user.user_role === 'Customer' && (
-                <>
-                  <Link to="/account/dashboard">Dashboard</Link>
-                  <Link to="/account/orders">Orders</Link>
-                  <Link to="/account/appointments">Appointments</Link>
-                  <Link to="/account/wishlist">Saved Items</Link>
-                  <Link to="/account/profile">Profile Settings</Link>
-                </>
-              )}
-              {user.user_role === 'Seller' && (
-                <Link to="/seller">Seller Dashboard</Link>
-              )}
-              <div className="dropdown-divider"></div>
-              <Logout onLogout={handleLogout} className="nav-button" />
+          
+          <div className="nav-divider"></div>
+          
+          {user ? (
+            <div className="dropdown account-dropdown">
+              <button className="account-button">
+                <User className="action-icon" />
+                <span>Account</span>
+                <ChevronDown className="dropdown-icon" />
+              </button>
+              <div className="dropdown-menu">
+                <div className="menu-header">
+                  <span className="user-name">My Account</span>
+                  <span className="user-email">{user.email}</span>
+                </div>
+                <div className="menu-items">
+                  {user.user_role === 'Customer' && (
+                    <>
+                      <Link to="/account/dashboard">Dashboard</Link>
+                      <Link to="/account/orders">Orders</Link>
+                      <Link to="/account/appointments">Appointments</Link>
+                      <Link to="/account/wishlist">Saved Items</Link>
+                      <Link to="/account/profile">Profile Settings</Link>
+                    </>
+                  )}
+                  {user.user_role === 'Seller' && (
+                    <Link to="/seller">Seller Dashboard</Link>
+                  )}
+                </div>
+                <div className="menu-divider"></div>
+                <div className="menu-footer">
+                  <Logout onLogout={handleLogout} className="logout-button" />
+                </div>
+              </div>
             </div>
-          </li>
-        ) : (
-          <div className="auth-buttons">
-            <li><Link to="/login" className="nav-button secondary">Login</Link></li>
-            <li><Link to="/register" className="nav-button outlined">Register</Link></li>
-          </div>
-        )}
+          ) : (
+            <div className="auth-buttons">
+              <Link to="/login" className="auth-button">Login</Link>
+              <Link to="/register" className="auth-button">Register</Link>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </nav>
   );
 };
 

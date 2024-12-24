@@ -103,7 +103,7 @@ const Home = () => {
         <div className="hero-content">
           <h1>Timeless Elegance, Modern Grace</h1>
           <p>Discover our curated collection of fine jewelry, where tradition meets contemporary design</p>
-          <Link to="/collections" className="button">
+          <Link to="/store" className="button">
             Explore Collection
           </Link>
         </div>
@@ -125,7 +125,7 @@ const Home = () => {
             >
               {categories.map((category) => (
                 <Link 
-                  to={`/collections/${category.name.toLowerCase()}`} 
+                  to={`/store/${category.name.toLowerCase()}`} 
                   className="category-card" 
                   key={category.name}
                 >
@@ -142,7 +142,7 @@ const Home = () => {
             </div>
             <button 
               className={`scroll-arrow right ${isEndReached ? 'transform-to-view-all' : ''}`} 
-              onClick={() => isEndReached ? navigate('/collections') : scroll('right')}
+              onClick={() => isEndReached ? navigate('/store') : scroll('right')}
             >
               {isEndReached ? (
                 <>
@@ -169,7 +169,7 @@ const Home = () => {
             ))}
           </div>
           <div className="text-center mt-8">
-            <Link to="/collections" className="button">
+            <Link to="/store" className="button">
               View All Products
             </Link>
           </div>

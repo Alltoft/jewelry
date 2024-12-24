@@ -1,0 +1,120 @@
+.payment-form {
+  margin-top: 2rem;
+}
+
+.card-element-container {
+  margin-bottom: 2rem;
+}
+
+.card-element-container label {
+  display: block;
+  margin-bottom: 0.8rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.StripeElement {
+  padding: 1rem;
+  border: 1px solid var(--marble-medium);
+  border-radius: var(--border-radius);
+  background: white;
+  transition: var(--transition);
+}
+
+.StripeElement--focus {
+  border-color: #B8860B;  /* replaced --deep-gold */
+  box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.1);
+}
+
+.StripeElement--invalid {
+  border-color: #8B0000;  /* replaced --error-red */
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #8B0000;  /* replaced --error-red */
+  background: #FFF5F5;  /* replaced --error-bg */
+  border: 1px solid #FFE5E5;  /* replaced --error-border */
+  border-radius: var(--border-radius);
+  padding: 0.75rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+.error-message svg {
+  flex-shrink: 0;
+}
+
+.pay-btn {
+  width: 100%;
+  padding: 1.2rem;
+  background: var(--emerald);
+  color: var(--marble-light);
+  border: none;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.pay-btn:hover:not(:disabled) {
+  background: #1B365D;  /* replaced --royal-navy */
+  transform: translateY(-2px);
+}
+
+.pay-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  background: var(--marble-medium);
+  color: var(--text-secondary);
+}
+
+.loading-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.loading-text::after {
+  content: '';
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.back-to-shipping {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: none;
+  border: none;
+  color: #1B365D;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2rem;
+}
+
+.back-to-shipping:hover {
+  color: var(--deep-gold);
+}

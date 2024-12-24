@@ -8,6 +8,7 @@
     "@stripe/react-stripe-js": "^3.0.0",
     "@stripe/stripe-js": "^5.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@babel/plugin-proposal-private-property-in-object": "^7.16.7",
     "axios": "^1.7.7",
     "colorthief": "^2.6.0",
     "framer-motion": "^11.11.17",

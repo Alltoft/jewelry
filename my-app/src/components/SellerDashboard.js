@@ -9,10 +9,16 @@ const SellerDashboard = () => {
   const [formData, setFormData] = useState({
     name: '',
     price: '',
+    original_price: '',
+    Product_refference: '',
+    style: '',
+    weight: '',
     description: '',
     quantity: '',
     status: 'Available',
     category: '',
+    material: '', // Add this line
+    gemstone: '', // Add this line
     image: null, // Main image file
     additionalImages: [], // Array of image URLs
   });
@@ -187,10 +193,16 @@ const SellerDashboard = () => {
       setFormData({
         name: '',
         price: '',
+        original_price: '',
+        Product_refference: '',
+        style: '',
+        weight: '',
         description: '',
         quantity: '',
         status: 'Available',
         category: '',
+        material: '',
+        gemstone: '',
         image: null,
         additionalImages: [],
       });
@@ -242,6 +254,33 @@ const SellerDashboard = () => {
                   step="0.01"
                 />
               </div>
+
+              <div className="form-group">
+                <label htmlFor="original_price">original_Price:</label>
+                <input
+                  type="number"
+                  id="original_price"
+                  name="original_price"
+                  value={formData.original_price}
+                  onChange={handleChange}
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="refference">Refference:</label>
+                <input
+                  type="number"
+                  id="refference"
+                  name="refference"
+                  value={formData.refference}
+                  onChange={handleChange}
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
               
               <div className="form-group">
                 <label htmlFor="description">Description:</label>
@@ -266,7 +305,31 @@ const SellerDashboard = () => {
                   min="0"
                 />
               </div>
-              
+
+              <div className="form-group">
+                <label htmlFor="style">Product style:</label>
+                <input
+                  type="text"
+                  id="style"
+                  name="style"
+                  value={formData.style}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="weight">Product weight "grams":</label>
+                <input
+                  type="text"
+                  id="weight"
+                  name="weight"
+                  value={formData.weight}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
               <div className="form-group">
                 <label htmlFor="status">Status:</label>
                 <select
@@ -302,6 +365,38 @@ const SellerDashboard = () => {
                   <option value="Pendants">Pendants</option>
                   <option value="Charms">Charms</option>
                 </select>
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="material">Material:</label>
+                <select
+                  id="material"
+                  name="material"
+                  value={formData.material}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Select Material</option>
+                  <option value="Gold">Gold</option>
+                  <option value="Silver">Silver</option>
+                  <option value="Platinum">Platinum</option>
+                  <option value="Diamond">Diamond</option>
+                  <option value="Pearl">Pearl</option>
+                  <option value="Emerald">Emerald</option>
+                  <option value="Ruby">Ruby</option>
+                  <option value="Sapphire">Sapphire</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="gemstone">Gemstone:</label>
+                <textarea
+                  id="gemstone"
+                  name="gemstone"
+                  value={formData.gemstone}
+                  onChange={handleChange}
+                  required
+                ></textarea>
               </div>
               
               <div className="form-group">
