@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Share2, ShoppingBag, ChevronRight, Minus, Plus, Shield, Package, RefreshCw, Info, Check } from 'lucide-react';
 import { getProduct, addToCart, addWishlist } from '../api';
 import './ProductDetailsPage.css';
+import { AuthContext } from '../context/AuthContext';
 import ReviewStars from './ReviewStars';
 
 const ProductDetailsPage = () => {
@@ -11,12 +12,13 @@ const ProductDetailsPage = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState('');
-  const [quantity, setQuantity] = useState(1);
+  const [item_quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [showSizeGuide, setShowSizeGuide] = useState(false);
   const [isZooming, setIsZooming] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const { user } = useContext(AuthContext);
   const [reviews] = useState([]);
   const imageRef = useRef(null);
 
@@ -54,13 +56,13 @@ const ProductDetailsPage = () => {
     fetchProduct();
   }, [id]);
 
-  const handleQuantityChange = (action) => {
-    if (action === 'increase') {
-      setQuantity(prev => prev + 1);
-    } else if (action === 'decrease' && quantity > 1) {
-      setQuantity(prev => prev - 1);
-    }
-  };
+  // const handleQuantityChange = (action) => {
+  //   if (action === 'increase') {
+  //     setQuantity(prev => prev + 1);
+  //   } else if (action === 'decrease' && quantity > 1) {
+  //     setQuantity(prev => prev - 1);
+  //   }
+  // };
 
   const handleAddToCart = async () => {
     // Size validation
@@ -70,17 +72,17 @@ const ProductDetailsPage = () => {
     }
   
     try {
-      if (localStorage.getItem('token')) {
+      if (user) {
         await addToCart({ 
           product_id: product.data.product_id,
-          quantity,
+          item_quantity,
           size: selectedSize 
         });
       } else {
         const localCart = JSON.parse(localStorage.getItem('cart') || '[]');
         const cartItem = {
           ...product.data,
-          quantity,
+          item_quantity,
           selected_size: selectedSize
         };
         localCart.push(cartItem);
@@ -89,7 +91,12 @@ const ProductDetailsPage = () => {
       showMessage('Added to cart successfully!', 'success');
     } catch (error) {
       console.error('Error adding to cart:', error);
-      showMessage('Failed to add to cart. Please try again.', 'error');
+      let errorMessage = 'Failed to add to cart. Please try again.';
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      showMessage(errorMessage, 'error');
     }
   };
   
@@ -105,7 +112,7 @@ const ProductDetailsPage = () => {
 
   const handleWishlist = async () => {
     try {
-      if (localStorage.getItem('token')) {
+      if (user) {
         await addWishlist({ product_id: product.data.product_id });
       } else {
         const localWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
@@ -117,6 +124,12 @@ const ProductDetailsPage = () => {
       setIsInWishlist(true);
     } catch (error) {
       console.error('Error adding to wishlist:', error);
+      let errorMessage = 'Failed to add to cart. Please try again.';
+      if (error.response && error.response.data && error.response.data.message) {
+        errorMessage = error.response.data.message;
+      }
+
+      showMessage(errorMessage, 'error');
     }
   };
 
@@ -210,7 +223,7 @@ const ProductDetailsPage = () => {
           </div>
 
           <div className="product-specifications">
-            <h3>Specifications</h3>
+            <h3>Specifications:</h3>
             <table>
               <tbody>
                 <tr>

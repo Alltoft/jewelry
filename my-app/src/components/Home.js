@@ -7,6 +7,7 @@ import {  useNavigate } from 'react-router-dom';
 import './Home.css';
 
 const Home = () => {
+  // window.location.reload();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

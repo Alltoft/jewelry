@@ -28,12 +28,12 @@ const NavLinks = () => {
         <div className="nav-group">
           <Link to="/" className="nav-logo">
             <Diamond className="logo-icon" />
-            <span>LUXE</span>
+            <span>MERAL</span>
           </Link>
           
           <div className="nav-links primary-links">
             <div className="dropdown">
-              <Link to="/collections" className="nav-link">
+              <Link className="nav-link">
                 Collections <ChevronDown className="dropdown-icon" />
               </Link>
               <div className="mega-menu">
@@ -105,7 +105,7 @@ const NavLinks = () => {
             <div className="dropdown account-dropdown">
               <button className="account-button">
                 <User className="action-icon" />
-                <span>Account</span>
+                <span>{user.name}</span>
                 <ChevronDown className="dropdown-icon" />
               </button>
               <div className="dropdown-menu">
@@ -135,8 +135,8 @@ const NavLinks = () => {
             </div>
           ) : (
             <div className="auth-buttons">
-              <Link to="/login" className="auth-button">Login</Link>
-              <Link to="/register" className="auth-button">Register</Link>
+              {/* <Link to="/login" className="auth-button">Login</Link>
+              <Link to="/register" className="auth-button">Register</Link> */}
             </div>
           )}
         </div>

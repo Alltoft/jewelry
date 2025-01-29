@@ -18,6 +18,7 @@ import ProductDetailsPage from './components/ProductDetailsPage';
 import CartPage from './components/CartPage';
 import WishlistPage from './components/wishlistpage/wishindex';
 import OrdersPage from './components/OrdersPage';
+import OrderPage from './components/OrderPage';
 import Logout from './components/Logout';
 import AboutPage from './components/AboutPage';
 import ContactPage from './components/ContactPage';
@@ -30,6 +31,7 @@ import CheckoutPage from './components/Checkout/CheckoutPage';
 import Footer from './components/Footer';
 import Store from './components/Store';
 import './App.css';
+import TestAddress from './pages/TestAddress';
 
 function App() {
   return (
@@ -37,12 +39,7 @@ function App() {
       <Router>
         <div className="app-container">
           <header>
-            <nav className="navbar">
-              <h1>My Store</h1>
-              <ul className="nav-links">
-                <NavLinks />
-              </ul>
-            </nav>
+            <NavLinks />
           </header>
           <main>
             <Routes>
@@ -172,6 +169,22 @@ function App() {
                   </PrivateRoute>
                 }
               />
+
+              <Route
+                path="/order"
+                element={
+                  <PrivateRoute role="Customer">
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <OrderPage />
+                    </motion.div>
+                  </PrivateRoute>
+                }
+              />
+
               <Route
                 path="/dashboard"
                 element={
@@ -279,6 +292,18 @@ function App() {
                     exit={{ opacity: 0 }}
                   >
                     <Store />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/test-address"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <TestAddress />
                   </motion.div>
                 }
               />

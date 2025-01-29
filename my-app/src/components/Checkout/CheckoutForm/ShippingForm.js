@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import './ShippingForm.css';
+import { AuthContext } from '../../../context/AuthContext';
+import GoogleMaps from '../../GoogleMaps';
+import ShippingRates from './ShippingRates';
+import axios from 'axios';
 
-const ShippingForm = ({ onSubmit, initialData }) => {
+const ShippingForm = ({ onSubmit, initialData, cart }) => {
+  const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState(initialData || {
     firstName: '',
     lastName: '',
@@ -14,18 +19,166 @@ const ShippingForm = ({ onSubmit, initialData }) => {
     zipCode: '',
     country: 'US'
   });
+  const [shippingRates, setShippingRates] = useState([]);
+  const [selectedRate, setSelectedRate] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const ShippingRate = JSON.parse('[]');
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => (initialData || {
+        ...prev,
+        firstName: user.name || '',
+        lastName: user.lastname || '',
+        email: user.email || '',
+        phone: user.phone_number || '',
+        address: user.shipping_address || '',
+        apartment: user.apartment || '',
+        city: user.city || '',
+        state: user.state || '',
+        zipCode: user.zipCode || '',
+        country: user.country || 'US'
+      }));
+    }
+  }, [user]);
+
+
+
+
+  const calculatePackageDetails = () => {
+    // Default values based on cart items
+    // This should be replaced with actual calculations based on products
+    return {
+      weight: {
+        value: 1.0,
+        units: "LB"
+      },
+      dimensions: {
+        length: 10,
+        width: 10,
+        height: 10,
+        units: "IN"
+      }
+    };
+  };
+
+  const isAddressComplete = (data) => {
+    return (
+      data.address.trim() !== '' &&
+      data.city.trim() !== '' &&
+      data.state.trim() !== '' &&
+      data.zipCode.length === 5
+    );
+  };
+
+  // Add validator function
+  const hasValidZipCode = (zipCode) => {
+    return zipCode && zipCode.length === 5 && /^\d{5}$/.test(zipCode);
+  };
+
+  // Update useEffect to check zip code
+  useEffect(() => {
+    if (hasValidZipCode(formData.zipCode)) {
+      fetchShippingRates();
+    }
+  }, [formData.zipCode]);
+
+  const fetchShippingRates = async () => {
+    if (!hasValidZipCode(formData.zipCode)) return;
+    
+    setLoading(true);
+    try {
+      const response = await axios.post('/get-rates', {
+        origin: {
+          address: {
+            streetLines: ["123 Merchant Street"],
+            city: "San Francisco",
+            stateOrProvinceCode: "CA",
+            postalCode: "94105",
+            countryCode: "US"
+          }
+        },
+        destination: {
+          address: {
+            streetLines: [formData.address],
+            city: formData.city,
+            stateOrProvinceCode: "",
+            postalCode: formData.zipCode,
+            countryCode: formData.country
+          }
+        },
+        package_details: calculatePackageDetails()
+      });
+
+      const formattedRates = response.data.output.rateReplyDetails.map(rate => ({
+        serviceType: rate.serviceName,
+        transitTime: rate.transitTime,
+        amount: parseFloat(rate.ratedShipmentDetails[0].totalNetCharge),
+        guarantees: rate.serviceGuarantees || [],
+        deliveryDate: rate.deliveryDate
+      }));
+
+      setShippingRates(formattedRates);
+      setError(null);
+    } catch (err) {
+      setError('Unable to fetch shipping rates');
+      setShippingRates([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isValidStateCode = (state) => {
+    return /^[A-Z]{2}$/.test(state.toUpperCase());
+  };
+
+  const handleSelectRate = (rate) => {
+    localStorage.setItem('selectedRate', JSON.stringify(rate));
+    // Force OrderSummary update
+    const event = new CustomEvent('shippingRateUpdate', { detail: rate });
+    window.dispatchEvent(event);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    if (name === 'state') {
+      const stateValue = value.toUpperCase();
+      setFormData(prev => ({
+        ...prev,
+        [name]: isValidStateCode(stateValue) ? stateValue : ''
+      }));
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
+  const handlePlaceSelected = (formattedAddress) => {
+    const newFormData = {
+      ...formData,
+      address: formattedAddress.streetLines[0],
+      city: formattedAddress.city,
+      state: formattedAddress.state,
+      zipCode: formattedAddress.zipCode,
+      country: formattedAddress.country || 'US'
+    };
+
+    setFormData(newFormData);
+    fetchShippingRates(newFormData);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (!selectedRate) {
+      setError('Please select a shipping method before continuing.');
+      return;
+    }
+    onSubmit({ ...formData, shippingRate: selectedRate });
   };
 
   return (
@@ -38,6 +191,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
+            placeholder='Enter your first name'
             required
           />
         </div>
@@ -48,6 +202,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
+            placeholder='Enter your last name'
             required
           />
         </div>
@@ -61,6 +216,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            placeholder='Enter your email'
             required
           />
         </div>
@@ -71,6 +227,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
+            placeholder='(123) 456-7890'
             required
           />
         </div>
@@ -78,13 +235,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
 
       <div className="form-group">
         <label>Address</label>
-        <input
-          type="text"
-          name="address"
-          value={formData.address}
-          onChange={handleChange}
-          required
-        />
+        <GoogleMaps onPlaceSelected={handlePlaceSelected} />
       </div>
 
       <div className="form-group">
@@ -93,6 +244,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
           type="text"
           name="apartment"
           value={formData.apartment}
+          placeholder='Enter your apartment number'
           onChange={handleChange}
         />
       </div>
@@ -105,6 +257,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="city"
             value={formData.city}
             onChange={handleChange}
+            placeholder='City'
             required
           />
         </div>
@@ -115,22 +268,50 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="state"
             value={formData.state}
             onChange={handleChange}
-            required
+            placeholder='State'
           />
         </div>
         <div className="form-group">
           <label>ZIP Code</label>
           <input
             type="text"
+            id="zipCode"
             name="zipCode"
             value={formData.zipCode}
             onChange={handleChange}
+            maxLength={5}
+            pattern="[0-9]{5}"
             required
           />
         </div>
       </div>
 
-      <button type="submit" className="continue-btn">
+      {loading && (
+        <div className="text-center py-4">
+          <p className="text-gray-600">Calculating shipping rates...</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+
+      {shippingRates.length > 0 && (
+        <ShippingRates
+          rates={shippingRates}
+          selectedRate={selectedRate}
+          onSelectRate={setSelectedRate}
+          onClick={handleSelectRate(selectedRate)}
+        />
+      )}
+
+      <button 
+        type="submit" 
+        className="continue-btn"
+        disabled={!selectedRate || loading}
+      >
         Continue to Payment
       </button>
     </form>

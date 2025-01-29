@@ -143,21 +143,21 @@ def update_cart():
     db.session.commit()
     return jsonify({'message': 'Cart updated successfully'}), 200
 
-@app.route('/cart/checkout', methods=['POST'])
+@app.route('/cart/clear', methods=['Delete'])
 @role_required('Customer')
-def checkout():
-    if not current_user.customer.shipping_address:
-        return jsonify({'message': 'Missing required data'}), 400
-    if not current_user.customer.cart:
+def clear_cart():
+    cart = current_user.customer.cart
+    if not cart:
         return jsonify({'message': 'Cart is empty'}), 400
-    current_user.customer.cart = []
+    for item in cart:
+        db.session.delete(item)
     db.session.commit()
-    return jsonify({'message': 'Cart checked out successfully'}), 200
+    return jsonify({'message': 'Cart cleared successfully'}), 200
 
 @app.route('/orders', methods=['GET'])
 @role_required('Customer')
 def get_orders():
-    orders = current_user.customer.orders
+    orders = Order.query.filter_by(customer_id=current_user.customer.customer_id).all()
     if not orders:
         return jsonify({'message': 'No orders found'}), 400
     return jsonify([order.to_dict() for order in orders]), 200

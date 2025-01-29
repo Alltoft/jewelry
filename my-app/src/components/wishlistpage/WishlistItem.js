@@ -1,9 +1,10 @@
-import React from 'react';
+import { React } from 'react';
 import { Share2, ShoppingBag, Trash2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ProductCard from '../ProductCard';
 
-const WishlistItem = ({ item, onRemove, onShare }) => (
+const WishlistItem = ({ item, onRemove, onShare }) => {
+  return (
   <>
     <ProductCard product={item} />
     <div className="wishlist-item-actions">
@@ -37,5 +38,5 @@ const WishlistItem = ({ item, onRemove, onShare }) => (
     </div>
   </>
 );
-
+};
 export default WishlistItem;

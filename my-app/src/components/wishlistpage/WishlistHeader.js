@@ -1,12 +1,13 @@
-import React from 'react';
+import { React, useContext } from 'react';
 import { Heart } from 'lucide-react';
+import { AuthContext } from '../../context/AuthContext';
 
 const WishlistHeader = ({ itemCount }) => {
-  const token = localStorage.getItem('token');
+  const { user } = useContext(AuthContext);
 
   return (
   <div className="wishlist-header">
-    {!token && (
+    {!user && (
     <p className="wishlist-subtitle">
     Items saved while not logged in are temporary and device-specific. Please log in to save items permanently to your collection.
     </p>

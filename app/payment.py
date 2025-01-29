@@ -19,8 +19,9 @@ payment_bp = Blueprint('payment', __name__)
 STRIPE_SECRET_KEY = os.environ.get("STRIPE_SECRET_KEY")
 stripe.api_key = STRIPE_SECRET_KEY
 
+
 # Log the loaded environment variables for debugging
-logger.info(f"Loaded STRIPE_SECRET_KEY: {STRIPE_SECRET_KEY}")
+# logger.info(f"Loaded STRIPE_SECRET_KEY: {STRIPE_SECRET_KEY}")
 
 @payment_bp.route('/create-payment', methods=['POST'])
 def create_payment():
@@ -29,7 +30,7 @@ def create_payment():
         amount = data.get('amount')
         customer_details = data.get('customer_details')
 
-        logger.info(f"Received payment request: Amount={amount}")
+        # logger.info(f"Received payment request: Amount={amount}")
 
         # Validate required fields
         if not amount or not customer_details:
@@ -44,7 +45,7 @@ def create_payment():
             receipt_email=customer_details.get('email'),
         )
 
-        logger.info("PaymentIntent created successfully.")
+        # logger.info("PaymentIntent created successfully.")
 
         return jsonify({'client_secret': intent.client_secret}), 200
 

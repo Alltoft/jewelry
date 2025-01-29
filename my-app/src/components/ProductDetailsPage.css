@@ -323,7 +323,7 @@
 
 .add-to-cart {
   flex: 1;
-  background: var(--emerald);
+  background: var(--accent-color);
   color: white;
   border: none;
   padding: 1rem 2rem;
@@ -340,7 +340,7 @@
 }
 
 .add-to-cart:hover {
-  background: var(--accent-color);  /* Changed from text-primary */
+  background: var(--emerald);  /* Changed from text-primary */
   transform: translateY(-2px);
 }
 

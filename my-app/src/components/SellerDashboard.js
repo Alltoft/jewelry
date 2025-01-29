@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Loading from './Loading';
 import ProductCard from './ProductCard'; // Import ProductCard
-import './SellerDashboard.css';
+// import './SellerDashboard.css';
 
 const SellerDashboard = () => {
   const [formData, setFormData] = useState({

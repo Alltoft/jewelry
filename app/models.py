@@ -4,6 +4,7 @@ import bcrypt
 from datetime import datetime
 from uuid import uuid4
 import sqlalchemy as sa
+from sqlalchemy.ext.hybrid import hybrid_property
 
 class User(UserMixin, db.Model):
     user_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
@@ -194,12 +195,35 @@ class Cart(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, index=True)
 
+    
+    @hybrid_property
+    def product_image(self):
+        return self.product.product_image
+    
+    @hybrid_property
+    def product_name(self):
+        return self.product.product_name
+    
+    @hybrid_property
+    def product_material(self):
+        return self.product.product_material
+    
+    @hybrid_property
+    def product_price(self):
+        return self.product.product_price
+
+
+
     def to_dict(self):
         return {
             'cart_id': self.cart_id,
             'customer_id': self.customer_id,
             'product_id': self.product_id,
             'item_quantity': self.item_quantity,
+            'product_image': self.product_image,
+            'product_name': self.product_name,
+            'product_material': self.product_material,
+            'product_price': self.product_price,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
         }
@@ -228,9 +252,6 @@ class Order(db.Model):
             'order_status': self.order_status,
             'total_price': self.total_price,
             'total_quantity': self.total_quantity,
-            'shipping_address': self.shipping_address,
-            'payment_method': self.payment_method,
-            'bank_details': self.bank_details,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'deleted_at': self.deleted_at
@@ -248,11 +269,16 @@ class Wishlist(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, index=True)
 
+    @hybrid_property
+    def product_image(self):
+        return self.product.product_image
+
     def to_dict(self):
         return {
             'wishlist_id': self.wishlist_id,
             'customer_id': self.customer_id,
             'product_id': self.product_id,
+            'product_image': self.product_image,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
         }

@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { getWishlist, removeWishlist } from '../../api';
+import { AuthContext } from '../../context/AuthContext';
 
 const useWishlist = () => {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useContext(AuthContext);
   
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const token = localStorage.getItem('token');
-        
-        if (token) {
+
+        if (user) {
           // Authenticated user - fetch from API
           const response = await getWishlist();
           setWishlistItems(response.data);
@@ -34,9 +35,8 @@ const useWishlist = () => {
 
   const handleRemove = async (productId) => {
     try {
-      const token = localStorage.getItem('token');
 
-      if (token) {
+      if (user) {
         // Authenticated user - remove from API
         await removeWishlist({ product_id: productId });
       } else {

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, Check } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import { addWishlist } from '../api';
 import './ProductCard.css';
 
@@ -11,10 +12,7 @@ const ProductCard = ({ product }) => {
     return localWishlist.some(item => item.product_id === product.product_id);
   });
 
-  const isAuthenticated = () => {
-    return localStorage.getItem('token') !== null;
-  };
-
+  const { user } = useContext(AuthContext);
   const saveToLocalWishlist = (product) => {
     const localWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
     if (!localWishlist.some(item => item.product_id === product.product_id)) {
@@ -28,7 +26,7 @@ const ProductCard = ({ product }) => {
     e.stopPropagation();
     
     try {
-      if (isAuthenticated()) {
+      if (user) {
         await addWishlist({ product_id: product.product_id });
         setIsInWishlist(true);
       } else {
@@ -38,6 +36,24 @@ const ProductCard = ({ product }) => {
       console.error('Error adding to wishlist:', error);
     }
   };
+
+  useEffect(() => {
+    const synchronizeWishlist = async () => {
+      if (user) {
+        const localWishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        for (const item of localWishlist) {
+          try {
+            await addWishlist({ product_id: item.product_id });
+          } catch (error) {
+            console.error('Error synchronizing wishlist:', error);
+          }
+        }
+        localStorage.removeItem('wishlist'); // Clear local wishlist after synchronization
+      }
+    };
+
+    synchronizeWishlist();
+  }, [user]);
 
   const handleBuyNow = () => {
     navigate(`/product/${product.product_id}`);

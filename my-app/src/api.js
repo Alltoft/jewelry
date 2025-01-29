@@ -1,10 +1,13 @@
-// src/api.js
 import axios from 'axios';
 
+const baseURL = 'http://localhost:5000'; // Adjust the base URL as needed
+
 const api = axios.create({
-  baseURL: 'http://localhost:5000', // Adjust the base URL as needed
+  baseURL: baseURL,
   withCredentials: true, // Ensures cookies are sent with each request
 });
+
+export { baseURL }; // Export the base URL
 
 export const registerUser = (data) => api.post('/register', data);
 export const loginUser = (data) => api.post('/login', data);
@@ -29,9 +32,9 @@ export const uploadProductImage = (productId, formData) => {
   });
 };
 
-// Costumer endpoints
-export const registerCostumer = (data) => api.post('/costumer/register', data);
-export const updateCostumer = (data) => api.put('/costumer/update', data);
+// Customer endpoints
+export const registerCustomer = (data) => api.post('/customer/register', data);
+export const updateCustomer = (data) => api.put('/customer/update', data);
 export const addWishlist = (data) => api.post('/wishlist/add', data);
 export const removeWishlist = (data) => api.delete('/wishlist/remove', { data });
 export const getWishlist = () => api.get('/wishlist');
@@ -50,43 +53,3 @@ export const getPurchaseHistory = () => api.get('/purchase_history');
 export const addPurchaseHistory = (data) => api.post('/purchase_history/add', data);
 export const removePurchaseHistory = (data) => api.delete('/purchase_history/remove', { data });
 export const updatePurchaseHistory = (data) => api.put('/purchase_history/update', data);
-
-// import axios from 'axios';
-
-// const API_URL = 'http://127.0.0.1:5000'; // Adjust the URL as needed
-
-// export const fetchProducts = async () => {
-//   try {
-//     const response = await axios.get(`${API_URL}/products`);
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-// export const registerUser = async (userData) => {
-//   try {
-//     const response = await axios.post(`${API_URL}/register`, userData);
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-// export const loginUser = async (credentials) => {
-//   try {
-//     const response = await axios.post(`${API_URL}/login`, credentials);
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
-
-// export const logoutUser = async () => {
-//   try {
-//     const response = await axios.post(`${API_URL}/logout`);
-//     return response.data;
-//   } catch (error) {
-//     throw error;
-//   }
-// };

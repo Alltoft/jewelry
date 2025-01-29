@@ -78,12 +78,15 @@ def sold():
     # update product stock
     # create order
     order = Order(
+        customer_id=current_user.customer.customer_id,
         order_status='Pending',
         created_at=datetime.now()
     )
     db.session.add(order)
     db.session.commit()
     return jsonify({'message': 'Order created successfully'}), 201
+
+
 # @app.route('/users/<int:user_id>', methods=['DELETE'])
 # def delete_user(user_id):
 #     pass

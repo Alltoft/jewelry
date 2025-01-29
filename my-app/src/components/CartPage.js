@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { baseURL, updateCart, removeFromCart } from '../api'; // Import the base URL
 import { ShoppingBag, ArrowLeft, Trash2, Gift, Lock, Check, CreditCard, Truck, Home, AlertCircle } from 'lucide-react';
 import Loading from './Loading';
 import './CartPage.css';
@@ -17,10 +18,9 @@ const CartPage = () => {
   const [showPromoError, setShowPromoError] = useState(false);
   const navigate = useNavigate();
 
-  // Update loadCart to include merging logic
   const loadCart = async () => {
     setLoading(true);
-    if (user && user.role === 'Customer') {
+    if (user && user.user_role === 'Customer') {
       try {
         const res = await axios.get('/cart');
         setCartItems(res.data);
@@ -37,17 +37,34 @@ const CartPage = () => {
         );
         
         if (existingItem) {
-          existingItem.quantity += item.quantity;
+          existingItem.item_quantity += item.item_quantity;
           return acc;
         }
         return [...acc, item];
       }, []);
-      
       setCartItems(mergedCart);
-      localStorage.setItem('cart', JSON.stringify(mergedCart));
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    const synchronizeCart = async () => {
+      if (user && user.user_role === 'Customer') {
+        const guestCart = JSON.parse(localStorage.getItem('cart')) || [];
+        for (const item of guestCart) {
+          try {
+            await axios.post('/cart', item);
+          } catch (error) {
+            console.error('Error synchronizing cart:', error);
+          }
+        }
+        localStorage.removeItem('cart'); // Clear local cart after synchronization
+      }
+    };
+
+    synchronizeCart();
+    loadCart();
+  }, [user]);
 
   // Fetch Product Details for Guest Users
   const fetchProductDetails = async (items) => {
@@ -66,36 +83,63 @@ const CartPage = () => {
     }
   };
 
+  const showMessage = (message, type) => {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `cart-message ${type}`;
+    messageDiv.innerText = message;
+    document.body.appendChild(messageDiv);
+    setTimeout(() => {
+      messageDiv.remove();
+    }, 3000);
+  };
+
   // Update updateQuantity to handle merging
   const updateQuantity = async (productId, newQuantity, size) => {
     if (newQuantity < 1) return;
     
     const updatedCart = cartItems.map(item =>
       (item.product_id === productId && item.selected_size === size)
-        ? { ...item, quantity: newQuantity }
+        ? { ...item, item_quantity: newQuantity }
         : item
     );
-    
-    if (user && user.role === 'Customer') {
-      try {
-        await axios.post('/cart/update', { 
-          product_id: productId, 
-          quantity: newQuantity,
-          size 
-        });
-        setCartItems(updatedCart);
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
+
       localStorage.setItem('cart', JSON.stringify(updatedCart));
       const updatedDetailed = detailedCartItems.map(item =>
         (item.product_id === productId && item.selected_size === size)
-          ? { ...item, quantity: newQuantity }
+          ? { ...item, item_quantity: newQuantity }
           : item
       );
       setDetailedCartItems(updatedDetailed);
       setCartItems(updatedCart);
+  };
+
+  const updateUserQuantity = async (productId, newQuantity, size) => {
+    if (newQuantity < 1) return;
+    console.log('cart items: ', cartItems);
+    const updatedCart = cartItems.map(item =>
+      (item.product_id === productId && item.selected_size === size)
+      ? { ...item, item_quantity: newQuantity }
+      : item
+    );
+    
+    if (user && user.user_role === 'Customer') {
+      console.log('productid: ', productId);
+      try {
+        await updateCart({ 
+          product_id: productId, 
+          item_quantity: newQuantity,
+          size 
+        });
+        setCartItems(updatedCart);
+      } catch (err) {
+        let errorMessage = 'Failed to add to cart. Please try again.';
+        errorMessage = err.response.data;
+        if (err.response && err.response.data && err.response.data.message) {
+          errorMessage = err.response.data.message;
+        }
+
+        showMessage(errorMessage, 'error');
+      }
     }
   };
 
@@ -104,8 +148,8 @@ const CartPage = () => {
     const updatedCart = cartItems.filter(item => item.product_id !== productId);
     setCartItems(updatedCart);
     
-    if (user && user.role === 'Customer') {
-      axios.post('/cart/remove', { product_id: productId })
+    if (user && user.user_role === 'Customer') {
+      removeFromCart({ product_id: productId })
         .catch(err => console.error(err));
     } else {
       localStorage.setItem('cart', JSON.stringify(updatedCart));
@@ -116,10 +160,10 @@ const CartPage = () => {
 
   // Calculate Subtotal
   const calculateSubtotal = () => {
-    const itemsToCalculate = user?.role === 'Customer' ? cartItems : detailedCartItems;
+    const itemsToCalculate = user?.user_role === 'Customer' ? cartItems : detailedCartItems;
     return itemsToCalculate.reduce((total, item) => {
       const itemPrice = parseFloat(item.product_price) || parseFloat(item.price) || 0;
-      return total + itemPrice * item.quantity;
+      return total + itemPrice * item.item_quantity;
     }, 0);
   };
 
@@ -151,9 +195,16 @@ const CartPage = () => {
   };
 
   // Checkout
-  const checkout = () => {
-    const totalAmount = calculateTotal();
-    navigate('/checkout', { state: { amount: totalAmount } });
+  const checkout = async () => {
+    try {
+      for (const item of cartItems) {
+        await updateUserQuantity(item.product_id, item.item_quantity, item.selected_size);
+      }
+      const totalAmount = calculateTotal();
+      navigate('/checkout', { state: { amount: totalAmount } });
+    } catch (error) {
+      console.error('Error updating cart:', error.message);
+    }
   };
 
   // Initial Load
@@ -166,7 +217,7 @@ const CartPage = () => {
 
   // Fetch Product Details for Guest Users
   useEffect(() => {
-    if ((!user || user.role !== 'Customer') && cartItems.length > 0) {
+    if ((!user || user.user_role !== 'Customer') && cartItems.length > 0) {
       fetchProductDetails(cartItems);
     } else {
       setDetailedCartItems([]);
@@ -174,20 +225,22 @@ const CartPage = () => {
   }, [cartItems, user]);
 
   // Fix operator precedence
-  if (loading || ((!user || user.role !== 'Customer') && detailedCartItems.length !== cartItems.length)) {
+  if (loading || ((!user || user.user_role !== 'Customer') && detailedCartItems.length !== cartItems.length)) {
     return <Loading />;
   }
 
   const renderCartItems = () => {
-    const items = user?.role === 'Customer' ? cartItems : detailedCartItems;
+    const items = user?.user_role === 'Customer' ? cartItems : detailedCartItems;
+
+  console.log(items);
     
     return items.map(item => (
       <div key={item.product_id} className="cart-item">
         <div className="item-image">
           <img
-            src={`/static/images/product_pics/${item.product_image || 'default.jpg'}`}
+            src={`${baseURL}/static/images/product_pics/${item.product_image || 'default.jpg'}`}
             alt={item.product_name}
-            onError={(e) => { e.target.src = '/static/images/product_pics/default.jpg'; }}
+            onError={(e) => { e.target.src = `${baseURL}/static/images/product_pics/default.jpg`; }}
           />
         </div>
         <div className="item-content">
@@ -208,15 +261,15 @@ const CartPage = () => {
           <div className="item-actions">
             <div className="quantity-controls">
               <button 
-                onClick={() => updateQuantity(item.product_id, item.quantity - 1, item.selected_size)}
+                onClick={() => updateQuantity(item.product_id, item.item_quantity - 1, item.selected_size)}
                 className="quantity-btn"
-                disabled={item.quantity <= 1}
+                disabled={item.item_quantity <= 1}
               >
                 -
               </button>
-              <span className="quantity">{item.quantity}</span>
+              <span className="quantity">{item.item_quantity}</span>
               <button 
-                onClick={() => updateQuantity(item.product_id, item.quantity + 1, item.selected_size)}
+                onClick={() => updateQuantity(item.product_id, item.item_quantity + 1, item.selected_size)}
                 className="quantity-btn"
               >
                 +
@@ -237,6 +290,13 @@ const CartPage = () => {
 
   return (
     <div className="cart-page">
+      <div className="wishlist-header">
+        {!user && (
+          <p className="wishlist-subtitle">
+            Items saved while not logged in are temporary and device-specific. Please log in to save items permanently to your cart.
+          </p>
+        )}
+      </div>
       <div className="cart-header">
         <Link to="/store" className="back-to-store">
           <ArrowLeft size={20} />
@@ -301,7 +361,7 @@ const CartPage = () => {
                 )}
               </div>
 
-              <div className="shipping-options">
+              {/* <div className="shipping-options">
                 <h3>Shipping Method</h3>
                 <div className="shipping-option">
                   <input
@@ -337,17 +397,17 @@ const CartPage = () => {
                     <span className="delivery-estimate">2-3 business days</span>
                   </label>
                 </div>
-              </div>
+              </div> */}
 
               <div className="summary-details">
                 <div className="summary-row">
                   <span>Subtotal</span>
                   <span>${calculateSubtotal().toFixed(2)}</span>
                 </div>
-                <div className="summary-row">
+                {/* <div className="summary-row">
                   <span>Shipping</span>
                   <span>{calculateShipping() === 0 ? 'Free' : `$${calculateShipping().toFixed(2)}`}</span>
-                </div>
+                </div> */}
                 {promoApplied && (
                   <div className="summary-row discount">
                     <span>Discount (10%)</span>

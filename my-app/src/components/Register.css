@@ -1,62 +1,193 @@
-/* FILE: /home/alo/Julweb/my-app/src/components/Register.css */
-.register-container {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 30px;
-    background-color: #fdfdfd;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    font-family: 'Georgia', serif;
+/* Register.css */
+.register-progress {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.register-progress::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--marble-medium);
+  z-index: 0;
+}
+
+.progress-step {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.progress-step span {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: white;
+  border: 2px solid var(--marble-medium);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.progress-step p {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.progress-step.active span {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.progress-step.active p {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.form-step {
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+  padding-right: 10px; /* Add padding for icons */
+}
+
+.form-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.auth-back {
+  flex: 1;
+  padding: 1rem;
+  background-color: white;
+  border: 1px solid var(--marble-medium);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.auth-back:hover {
+  background-color: var(--marble-light);
+  border-color: var(--text-secondary);
+}
+
+.completion-message {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.completion-message h3 {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.completion-message p {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.form-summary {
+  background-color: var(--pearl);
+  padding: 1.5rem;
+  border-radius: 4px;
+  margin-bottom: 2rem;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--marble-medium);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.summary-item p {
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  h1 {
-    text-align: center;
-    color: #333;
-    font-size: 2.5em;
-    margin-bottom: 30px;
-    font-family: 'Garamond', serif;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  label {
-    display: block;
-    margin-bottom: 15px;
-    color: #555;
-    font-weight: bold;
-    font-size: 1.1em;
-  }
-  
-  input, select {
-    width: 100%;
-    padding: 12px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 1em;
-    background-color: #fff;
-    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
-  }
-  
-  button {
-    width: 100%;
-    padding: 15px;
-    margin-top: 20px;
-    background-color: #d4af37; /* Gold color */
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1.2em;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-  }
-  
-  button:hover {
-    background-color: #b8860b; /* Darker gold */
-    transform: scale(1.05);
-  }
-  
-  .error-message {
-    color: red;
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 1.1em;
-  }
+}
+
+/* Update existing input styles */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.input-wrapper input,
+.input-wrapper select,
+.input-wrapper textarea {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--marble-medium);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+/* Move icon outside */
+.input-icon {
+  position: absolute;
+  right: -30px; /* Position icon outside */
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+/* Adjust form group to accommodate outside icon */
+.form-group {
+  position: relative;
+  margin-bottom: 1.5rem;
+  padding-right: 35px; /* Make space for icon */
+}
+
+/* Adjust textarea icon position */
+.input-wrapper textarea + .input-icon {
+  top: 1rem;
+  transform: none;
+}
+
+/* Inherit other styles from Login.css */

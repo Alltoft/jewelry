@@ -1,0 +1,12 @@
+.geocoder-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+.mapboxgl-ctrl-geocoder {
+  width: 100% !important;
+  max-width: none;
+  font-size: 15px;
+  line-height: 20px;
+  direction: rtl;
+}

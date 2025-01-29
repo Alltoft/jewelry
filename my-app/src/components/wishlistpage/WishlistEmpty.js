@@ -13,7 +13,7 @@ const WishlistEmpty = () => (
       className="explore-button"
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      onClick={() => window.location.href = '/collections'}
+      onClick={() => window.location.href = '/store'}
     >
       Explore Collections
       <ChevronRight size={20} />

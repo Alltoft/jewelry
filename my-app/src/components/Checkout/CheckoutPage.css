@@ -28,7 +28,7 @@
 }
 
 .back-button {
-  position: absolute;
+  position: relative;
   left: 0;
   top: 50%;
   transform: translateY(-50%);
@@ -266,6 +266,18 @@
 
 .return-to-cart:hover {
   background: #1B365D;  /* replaced --royal-navy */
+}
+
+.auth-warning {
+  background: var(--marble-light);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 500;
 }
 
 @media (max-width: 1200px) {
