@@ -8,6 +8,7 @@ import {
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import { motion } from 'framer-motion';
+import ScrollToTop from './components/ScrollToTop';
 
 import Home from './components/Home';
 import LoginPage from './components/LoginPage';
@@ -37,6 +38,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <div className="app-container">
           <header>
             <NavLinks />
