@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+myothervenv/
+migrations/
+.env
+.git/
+.fedex/
+my-app/
+*.sql
+*.js
+.gitignore
+.pytest_cache/
