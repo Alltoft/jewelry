@@ -1,34 +1,37 @@
-# Use Ubuntu as the base image
-FROM ubuntu:22.04
+# Use official Python image (slim version for smaller size)
+FROM python:3.9-slim-buster
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
-    LOG_LEVEL=INFO \
     FLASK_APP=run.py \
-    FLASK_ENV=production
+    FLASK_ENV=production \
+    FLASK_DEBUG=0
 
-# Install system dependencies
+# Install system dependencies for PostgreSQL/MySQL and image processing
 RUN apt-get update && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     build-essential \
-    pkg-config \
     default-libmysqlclient-dev \
-    python3.9 \
-    python3-pip \
-    python3-venv \
+    libpq-dev \
+    libjpeg-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Set up the working directory
+# Create and set working directory
 WORKDIR /app
 
-# Upgrade pip and install Python dependencies
+# Install Python dependencies
 COPY requirements.txt .
-RUN python3 -m pip install --no-cache-dir --upgrade pip && \
-    python3 -m pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# Copy application code (use .dockerignore to exclude unnecessary files)
 COPY . .
 
-# Run migrations and start the app
-CMD flask db upgrade && \
-    gunicorn --bind 0.0.0.0:80 --workers 4 app:app
+# Create necessary directories
+RUN mkdir -p static/images/product_pics static/images/temp
+
+# Use a startup script to ensure DB connectivity
+RUN chmod +x ./start.sh
+
+CMD ["./start.sh"]
