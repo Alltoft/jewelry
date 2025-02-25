@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:5000'; // Adjust the base URL as needed
+const baseURL = 'https://api.mymeral.me'; // Adjust the base URL as needed
 
 const api = axios.create({
   baseURL: baseURL,
