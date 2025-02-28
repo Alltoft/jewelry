@@ -1,6 +1,6 @@
 // jsx
 import React, { createContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import { getCurrentUser } from '../api';
 import Loading from '../components/Loading';
 
 const AuthContext = createContext();
@@ -11,7 +11,8 @@ const AuthProvider = ({ children }) => {
 
   const loadUser = async () => {
     try {
-      const res = await axios.get('/current_user');
+      const res = await getCurrentUser();
+      console.log(res.data);
       setUser(res.data);
     } catch (err) {
       console.error(err.response?.data || err.message);

@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const baseURL = 'https://api.mymeral.me'; // Adjust the base URL as needed
+// const baseURL = 'https://api.mymeral.me'; // Adjust the base URL as needed
+const baseURL = 'http://127.0.0.1:5000'; // Adjust the base URL as needed
+
 
 const api = axios.create({
   baseURL: baseURL,
@@ -15,6 +17,7 @@ export const logoutUser = () => api.post('/logout');
 export const getProducts = () => api.get('/products');
 export const getProduct = (productId) => api.get(`/product/${productId}`);
 export const SoldProduct = () => api.post('/sold');
+export const getCurrentUser = () => api.get('/current_user');
 
 // Seller endpoints
 export const registerSeller = (data) => api.post('/seller/register', data);
