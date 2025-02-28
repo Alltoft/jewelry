@@ -135,8 +135,8 @@ const NavLinks = () => {
             </div>
           ) : (
             <div className="auth-buttons">
-              {/* <Link to="/login" className="auth-button">Login</Link>
-              <Link to="/register" className="auth-button">Register</Link> */}
+              <Link to="/login" className="auth-button">Login</Link>
+              <Link to="/register" className="auth-button">Register</Link>
             </div>
           )}
         </div>
