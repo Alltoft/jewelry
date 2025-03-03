@@ -1,9 +1,15 @@
 // src/components/SellerDashboard.js
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { 
+  getSellerProducts, 
+  addProduct, 
+  uploadProductImage, 
+  uploadTempImage,
+  uploadAdditionalImages
+} from '../api';
 import Loading from './Loading';
 import ProductCard from './ProductCard'; // Import ProductCard
-// import './SellerDashboard.css';
+import './SellerDashboard.css';
 
 const SellerDashboard = () => {
   const [formData, setFormData] = useState({
@@ -38,7 +44,7 @@ const SellerDashboard = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('/products'); // Adjust the endpoint as needed
+      const res = await getSellerProducts();
       setProducts(res.data);
     } catch (err) {
       console.error(err);
@@ -74,11 +80,7 @@ const SellerDashboard = () => {
     imageData.append('image', selectedAdditionalImage);
 
     try {
-      const res = await axios.post('/upload_temp_image', imageData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const res = await uploadTempImage(imageData);
 
       // Assuming the backend returns the full URL
       setFormData((prevData) => ({
@@ -108,11 +110,7 @@ const SellerDashboard = () => {
           const imageData = new FormData();
           imageData.append('image', file);
 
-          const res = await axios.post('/upload_temp_image', imageData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
+          const res = await uploadTempImage(imageData);
 
           // Assuming the backend returns the filename or URL
           setFormData((prevData) => ({
@@ -149,47 +147,34 @@ const SellerDashboard = () => {
 
     const { image, additionalImages, ...dataWithoutImages } = formData;
 
-    console.log('Submitting product data:', dataWithoutImages);
-    console.log('Main image:', image);
-    console.log('Additional images:', additionalImages);
-
     try {
-      // Step 1: Send product data as JSON
-      const res = await axios.post('/product/add', dataWithoutImages, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
+      // Step 1: Send product data
+      const res = await addProduct(dataWithoutImages);
       const productId = res.data.product_id;
 
       // Step 2: Upload main image
       if (image) {
         const imageData = new FormData();
         imageData.append('image', image);
-
-        await axios.post(`/product/${productId}/upload_image`, imageData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await uploadProductImage(productId, imageData);
       }
 
-      // Step 3: Associate additional images
+      // Step 3: Associate the temporary additional images with the product
       if (additionalImages.length > 0) {
         const additionalImageData = new FormData();
-        additionalImages.forEach((image_url) => {
-          additionalImageData.append('images', image_url);
-        });
+        // Add each image as a separate 'images' field
+        for (let imageUrl of additionalImages) {
+          const response = await fetch(imageUrl);
+          const blob = await response.blob();
+          const filename = imageUrl.split('/').pop();
+          const file = new File([blob], filename, { type: blob.type });
+          additionalImageData.append('images', file);
+        }
 
-        await axios.post(`/product/${productId}/associate_images`, additionalImageData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await uploadAdditionalImages(productId, additionalImageData);
       }
 
-      // Reset Form and Close Modal
+      // Reset form and reload
       setFormData({
         name: '',
         price: '',

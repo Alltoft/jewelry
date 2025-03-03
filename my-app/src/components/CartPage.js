@@ -1,9 +1,15 @@
 import React, { useContext, useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { baseURL, updateCart, removeFromCart } from '../api'; // Import the base URL
-import { ShoppingBag, ArrowLeft, Trash2, Gift, Lock, Check, CreditCard, Truck, Home, AlertCircle } from 'lucide-react';
+import { 
+  baseURL, 
+  getCart,
+  getProduct,
+  addToCart,
+  updateCart, 
+  removeFromCart 
+} from '../api';
+import { ShoppingBag, ArrowLeft, Trash2, Gift, Lock, Check, CreditCard, Truck, AlertCircle } from 'lucide-react';
 import Loading from './Loading';
 import './CartPage.css';
 
@@ -22,14 +28,13 @@ const CartPage = () => {
     setLoading(true);
     if (user && user.user_role === 'Customer') {
       try {
-        const res = await axios.get('/cart');
+        const res = await getCart();
         setCartItems(res.data);
       } catch (err) {
         console.error(err.response?.data || err.message);
       }
     } else {
       const guestCart = JSON.parse(localStorage.getItem('cart')) || [];
-      // Merge duplicate items
       const mergedCart = guestCart.reduce((acc, item) => {
         const existingItem = acc.find(i => 
           i.product_id === item.product_id && 
@@ -53,7 +58,7 @@ const CartPage = () => {
         const guestCart = JSON.parse(localStorage.getItem('cart')) || [];
         for (const item of guestCart) {
           try {
-            await axios.post('/cart', item);
+            await addToCart(item);
           } catch (error) {
             console.error('Error synchronizing cart:', error);
           }
@@ -69,9 +74,7 @@ const CartPage = () => {
   // Fetch Product Details for Guest Users
   const fetchProductDetails = async (items) => {
     try {
-      const productRequests = items.map(item =>
-        axios.get(`/product/${item.product_id}`)
-      );
+      const productRequests = items.map(item => getProduct(item.product_id));
       const productResponses = await Promise.all(productRequests);
       const detailedItems = items.map((item, index) => ({
         ...item,
@@ -132,25 +135,24 @@ const CartPage = () => {
         });
         setCartItems(updatedCart);
       } catch (err) {
-        let errorMessage = 'Failed to add to cart. Please try again.';
-        errorMessage = err.response.data;
-        if (err.response && err.response.data && err.response.data.message) {
-          errorMessage = err.response.data.message;
-        }
-
+        let errorMessage = err.response?.data?.message || 'Failed to update cart. Please try again.';
         showMessage(errorMessage, 'error');
       }
     }
   };
 
   // Remove Item
-  const removeItem = (productId) => {
+  const removeItem = async (productId) => {
     const updatedCart = cartItems.filter(item => item.product_id !== productId);
     setCartItems(updatedCart);
     
     if (user && user.user_role === 'Customer') {
-      removeFromCart({ product_id: productId })
-        .catch(err => console.error(err));
+      try {
+        await removeFromCart({ product_id: productId });
+      } catch (err) {
+        console.error('Error removing item:', err);
+        showMessage('Failed to remove item', 'error');
+      }
     } else {
       localStorage.setItem('cart', JSON.stringify(updatedCart));
       const updatedDetailed = detailedCartItems.filter(item => item.product_id !== productId);

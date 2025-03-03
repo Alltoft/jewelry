@@ -15,6 +15,8 @@ import {
   Calendar as CalendarIcon,
 } from 'lucide-react';
 import './Register.css';
+import { registerUser, registerSeller, registerCustomer } from '../api';
+
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -102,29 +104,18 @@ const RegisterPage = () => {
 
     setIsLoading(true);
     try {
-      // Register general user first
-      const generalResponse = await fetch('/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          lastname: formData.lastname,
-          username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          phone_number: formData.phone_number,
-          user_role: formData.user_role,
-        }),
+      // Register general user first using the API
+      const generalResponse = await registerUser({
+        name: formData.name,
+        lastname: formData.lastname,
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        phone_number: formData.phone_number,
+        user_role: formData.user_role,
       });
 
-      if (!generalResponse.ok) {
-        setCurrentStep(1);
-        const errorData = await generalResponse.json();
-        throw new Error(errorData.message || generalResponse.statusText);
-      }
-
       // Register role-specific details
-      const roleEndpoint = formData.user_role === UserRole.SELLER ? '/seller/register' : '/customer/register';
       const roleData = formData.user_role === UserRole.SELLER ? {
         store_name: formData.store_name,
         store_description: formData.store_description,
@@ -140,15 +131,11 @@ const RegisterPage = () => {
         phone_number: formData.phone_number,
       };
 
-      const roleResponse = await fetch(roleEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(roleData),
-      });
+      // Use the appropriate API function based on user role
+      const roleResponse = await (formData.user_role === UserRole.SELLER 
+        ? registerSeller(roleData)
+        : registerCustomer(roleData));
 
-      if (!roleResponse.ok) {
-        throw new Error('Role registration failed');
-      }
       const message = document.createElement('div');
       message.textContent = 'Account created successfully';
       message.style.cssText = `
@@ -173,7 +160,8 @@ const RegisterPage = () => {
         }, 100);
       }, 1000);
     } catch (error) {
-      setErrors({ submit: error.message });
+      setCurrentStep(1);
+      setErrors({ submit: error.response?.data?.message || error.message });
     } finally {
       setIsLoading(false);
     }

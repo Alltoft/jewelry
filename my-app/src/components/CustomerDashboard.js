@@ -1,7 +1,6 @@
-// jsx
 import React, { useEffect, useState, useContext } from 'react';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { getCustomerProfile } from '../api';
 
 const CustomerDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -9,10 +8,10 @@ const CustomerDashboard = () => {
 
   const loadProfile = async () => {
     try {
-      const res = await axios.get('/costumer/profile');
+      const res = await getCustomerProfile();
       setProfile(res.data);
     } catch (err) {
-      console.error(err.response.data);
+      console.error(err.response?.data || err.message);
     }
   };
 

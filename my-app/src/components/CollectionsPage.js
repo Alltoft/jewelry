@@ -1,6 +1,5 @@
-// jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getProducts } from '../api';
 import ProductCard from './ProductCard';
 // import './CollectionsPage.css';
 
@@ -10,10 +9,10 @@ const CollectionsPage = () => {
   useEffect(() => {
     const fetchCollections = async () => {
       try {
-        const res = await axios.get('/products');
+        const res = await getProducts();
         setCollections(res.data);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching collections:', err.response?.data || err.message);
       }
     };
     fetchCollections();

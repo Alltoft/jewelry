@@ -1,22 +1,18 @@
 // src/components/PaymentsPage.js
 
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { createPayment, retrievePaymentMethod, markAsSold } from '../api';
 import './PaymentsPage.css';
 
-const stripePromise = loadStripe('pk_test_51QS0cNF4QAlgSVdgf3N7cibjgafxZF3pwDCSh9McWqs3wmzvdIUVoVv6oh4UkB7ejqCkp6KbQo2zf8yM9meSz7V000HVLIJvRo'); // Replace with your Stripe publishable key
+const stripePromise = loadStripe('pk_test_51QS0cNF4QAlgSVdgf3N7cibjgafxZF3pwDCSh9McWqs3wmzvdIUVoVv6oh4UkB7ejqCkp6KbQo2zf8yM9meSz7V000HVLIJvRo'); // Stripe publishable key
 
 async function fetchPaymentMethod(paymentMethodId) {
   try {
-    const response = await fetch(`/retrieve-payment-method/${paymentMethodId}`);
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    const paymentMethod = await response.json();
-    console.log('Payment Method Card Details:', paymentMethod.card);
+    const response = await retrievePaymentMethod(paymentMethodId);
+    console.log('Payment Method Card Details:', response.data.card);
   } catch (error) {
     console.error('Error fetching payment method:', error);
   }
@@ -40,7 +36,7 @@ const CheckoutForm = ({ amount }) => {
     setSuccess(false);
 
     try {
-      const response = await axios.post('/create-payment', {
+      const response = await createPayment({
         amount,
         customer_details: {
           name,
@@ -69,7 +65,7 @@ const CheckoutForm = ({ amount }) => {
       } else {
         if (result.paymentIntent.status === 'succeeded') {
           setSuccess(true);
-          axios.post('/sold');
+          await markAsSold();
           localStorage.removeItem('cart');
           setTimeout(() => {
             if (localStorage.getItem('guestWishlist')) {

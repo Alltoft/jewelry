@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, Eye, Check } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
-import { addWishlist } from '../api';
+import { addWishlist, baseURL } from '../api';
 import './ProductCard.css';
 
 const ProductCard = ({ product }) => {
@@ -60,14 +60,19 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div 
-      className="product-card"
-    >
+    <div className="product-card">
       <div className="product-image-container">
         <img 
-          src={`static/images/product_pics/${product.product_image}`} 
+          src={product.product_image ? 
+            `${baseURL}/static/images/product_pics/${product.product_image}` : 
+            `${baseURL}/static/images/default-product.jpg`
+          }
           alt={product.product_name} 
           className="product-image"
+          onError={(e) => {
+            e.target.onerror = null; // Prevent infinite loop
+            e.target.src = `${baseURL}/static/images/default-product.jpg`;
+          }}
         />
         <div className="product-overlay">
           <button 

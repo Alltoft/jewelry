@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Heart, Share2, ShoppingBag, ChevronRight, Minus, Plus, Shield, Package, RefreshCw, Info, Check } from 'lucide-react';
-import { getProduct, addToCart, addWishlist } from '../api';
+import { getProduct, addToCart, addWishlist, baseURL } from '../api';
 import './ProductDetailsPage.css';
 import { AuthContext } from '../context/AuthContext';
 import ReviewStars from './ReviewStars';
@@ -172,14 +172,18 @@ const ProductDetailsPage = () => {
           >
             <img 
               ref={imageRef}
-              src={`/static/images/product_pics/${productImages[activeImage]}`} 
-              alt={product.data.product_name} 
+              src={`${baseURL}/static/images/product_pics/${productImages[activeImage]}`} 
+              alt={product.data.product_name}
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = `${baseURL}/static/images/default-product.jpg`;
+              }}
             />
             {isZooming && (
               <div 
                 className="zoom-view"
                 style={{
-                  backgroundImage: `url(/static/images/product_pics/${productImages[activeImage]})`,
+                  backgroundImage: `url(${baseURL}/static/images/product_pics/${productImages[activeImage]})`,
                   backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`
                 }}
               />
@@ -193,11 +197,11 @@ const ProductDetailsPage = () => {
                 onClick={() => setActiveImage(index)}
               >
                 <img 
-                  src={`/static/images/product_pics/${image}`} 
+                  src={`${baseURL}/static/images/product_pics/${image}`} 
                   alt={`${product.data.product_name} view ${index + 1}`}
                   onError={(e) => {
-                    e.target.src = '/static/images/product_pics/default.jpg';
-                    console.error(`Failed to load image: ${image}`);
+                    e.target.onerror = null;
+                    e.target.src = `${baseURL}/static/images/default-product.jpg`;
                   }}
                 />
               </div>
