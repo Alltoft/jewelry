@@ -16,8 +16,7 @@ RUN apt-get update && \
     libmariadb-dev \
     && rm -rf /var/lib/apt/lists/*
     
-# Working directory setup
-WORKDIR /app
+
 
 # Install Python dependencies
 COPY requirements.txt .

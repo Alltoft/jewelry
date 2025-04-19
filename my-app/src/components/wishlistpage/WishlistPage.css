@@ -8,6 +8,7 @@
   /* Header Styles */
   .wishlist-header {
     margin-bottom: var(--spacing-lg);
+    padding-top: 80px;
     text-align: center;
     position: relative;
   }

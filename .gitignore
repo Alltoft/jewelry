@@ -6,4 +6,4 @@ dist/
 .env.test
 .env.production
 .fedex/
-# app/static/
+app/static/
