@@ -27,7 +27,7 @@ import CollectionsPage from './components/CollectionsPage';
 import FAQPage from './components/FAQPage';
 import TermsAndConditionsPage from './components/TermsAndConditionsPage';
 import PrivacyPolicyPage from './components/PrivacyPolicyPage';
-import NavLinks from './components/NavLinks';
+import Navbar from './components/Navbar.tsx';
 import CheckoutPage from './components/Checkout/CheckoutPage';
 import Footer from './components/Footer';
 import Store from './components/Store';
@@ -41,7 +41,7 @@ function App() {
         <ScrollToTop />
         <div className="app-container">
           <header>
-            <NavLinks />
+            <Navbar />
           </header>
           <main>
             <Routes>

@@ -1,0 +1,16 @@
+/* Navbar Styles */
+.site-header {
+    position: relative;
+    width: 100%;
+    z-index: 1000;
+  }
+  
+  /* CSS Variables for the luxury theme */
+  :root {
+    --emerald: #00a896;
+    --pearl: #f8f8f8;
+    --marble-shadow: rgba(0, 0, 0, 0.05);
+    --text-primary: #333333;
+    --text-secondary: #666666;
+    --font-heading: 'Playfair Display', serif;
+  }
