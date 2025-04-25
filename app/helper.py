@@ -12,6 +12,7 @@ def save_picture(file):
     _, f_ext = os.path.splitext(file.filename)
     final_pic = random_hex + f_ext
     picture_path = os.path.join(app.root_path, app.config["UPLOAD_FOLDER"], final_pic)
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
     file.save(picture_path)
     return final_pic
 
@@ -20,6 +21,7 @@ def save_temp_picture(file):
     _, f_ext = os.path.splitext(file.filename)
     final_pic = random_hex + f_ext
     picture_path = os.path.join(app.root_path, app.config["TEMP_UPLOAD_FOLDER"], final_pic)
+    os.makedirs(os.path.dirname(picture_path), exist_ok=True)
     file.save(picture_path)
     return final_pic
 
