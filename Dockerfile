@@ -15,7 +15,10 @@ RUN apt-get update && \
     libssl-dev \
     libmariadb-dev \
     && rm -rf /var/lib/apt/lists/*
-    
+
+# Working directory setup
+WORKDIR /app
+
 
 
 # Install Python dependencies
