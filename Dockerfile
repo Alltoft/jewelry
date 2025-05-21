@@ -19,8 +19,6 @@ RUN apt-get update && \
 # Working directory setup
 WORKDIR /app
 
-
-
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip && \
@@ -29,4 +27,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY . .
 
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "4", "app:app"]
+# Create the product_pics directory if it doesn't exist
+RUN mkdir -p /app/app/static/images/product_pics
+
+# Define volume for product images
+VOLUME ["/app/app/static/images/product_pics"]
+
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "4", "--access-logfile", "-", "--error-logfile", "-", "app:app"]
