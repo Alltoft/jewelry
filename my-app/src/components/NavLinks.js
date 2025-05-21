@@ -27,8 +27,8 @@ const NavLinks = () => {
       <div className="nav-section main-nav">
         <div className="nav-group">
           <Link to="/" className="nav-logo">
-          <img src="favicon.ico" alt="Meral Logo" className="logo-icon" />
-            <span>ERAL</span>
+            <Diamond className="logo-icon" />
+            <span>MERAL</span>
           </Link>
           
           <div className="nav-links primary-links">
