@@ -235,10 +235,19 @@ class Order(db.Model):
     order_id = db.Column(db.String(64), default=lambda: str(uuid4()), primary_key=True)
     customer_id = db.Column(db.String(64), db.ForeignKey('customer.customer_id'))
     customer = db.relationship('Customer', back_populates='order')
+    customer_name = db.Column(db.String(64), index=True)
+    customer_email = db.Column(db.String(120), index=True)
+    customer_phone = db.Column(db.String(64), index=True)
+    customer_address = db.Column(db.String(120), index=True)
+    customer_city = db.Column(db.String(64), index=True)
+    customer_state = db.Column(db.String(64), index=True)
+    customer_zip = db.Column(db.String(20), index=True)
     order_date = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     order_status = db.Column(sa.Enum('Pending', 'Delivered', 'Cancelled'), default='Pending', index=True)
     total_price = db.Column(db.Float, index=True)
     total_quantity = db.Column(db.Integer, index=True)
+    payment_method = db.Column(db.String(20), default='card', index=True)  # 'card' or 'cod'
+    payment_status = db.Column(sa.Enum('paid', 'pending', 'failed'), default='pending', index=True)
     # products = db.relationship('Product', secondary='order_product', backref='orders')
     created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
@@ -248,10 +257,19 @@ class Order(db.Model):
         return {
             'order_id': self.order_id,
             'customer_id': self.customer_id,
+            'customer_name': self.customer_name,
+            'customer_email': self.customer_email,
+            'customer_phone': self.customer_phone,
+            'customer_address': self.customer_address,
+            'customer_city': self.customer_city,
+            'customer_state': self.customer_state,
+            'customer_zip': self.customer_zip,
             'order_date': self.order_date,
             'order_status': self.order_status,
             'total_price': self.total_price,
             'total_quantity': self.total_quantity,
+            'payment_method': self.payment_method,
+            'payment_status': self.payment_status,
             'created_at': self.created_at,
             'updated_at': self.updated_at,
             'deleted_at': self.deleted_at

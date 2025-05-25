@@ -1,0 +1,83 @@
+.shipping-rates {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--marble-medium);
+  }
+  
+  .shipping-carousel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .carousel-arrow {
+    background: white;
+    border: 1px solid var(--marble-medium);
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+    z-index: 2;
+  }
+  
+  .carousel-arrow:hover {
+    background: var(--marble-light);
+    color: var(--text-primary);
+    transform: scale(1.05);
+  }
+  
+  .carousel-arrow:active {
+    transform: scale(0.95);
+  }
+  
+  .shipping-rate-card {
+    background: white;
+    border: 2px solid var(--marble-medium);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+  }
+  
+  .shipping-rate-card:hover {
+    border-color: var(--emerald);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .shipping-rate-card.selected {
+    border-color: var(--emerald);
+    background-color: #f7fcfa;
+  }
+  
+  .shipping-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+  
+  .pagination-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--marble-medium);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .pagination-dot.active {
+    background: var(--emerald);
+    transform: scale(1.2);
+  }

@@ -1,5 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Elements } from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
 import { AuthContext } from '../../context/AuthContext'; // Corrected import path
 import { getCart } from '../../api'; // Corrected import path
 import { ArrowLeft } from 'lucide-react';
@@ -9,6 +11,8 @@ import OrderSummary from './OrderSummary';
 import SecurityFeatures from './SecurityFeatures';
 import './CheckoutPage.css';
 
+const stripePromise = loadStripe('pk_test_51QS0cNF4QAlgSVdgf3N7cibjgafxZF3pwDCSh9McWqs3wmzvdIUVoVv6oh4UkB7ejqCkp6KbQo2zf8yM9meSz7V000HVLIJvRo');
+
 const CheckoutPage = () => {
   const { user } = useContext(AuthContext);
   const location = useLocation();
@@ -16,6 +20,7 @@ const CheckoutPage = () => {
   const { amount } = location.state || {};
   const [currentStep, setCurrentStep] = useState(1);
   const [cart, setCart] = useState([]);
+  const [selectedRate, setSelectedRate] = useState(null);
   const [totalAmount, setTotalAmount] = useState(amount);
 
   const loadCart = async () => {
@@ -36,13 +41,30 @@ const CheckoutPage = () => {
 
   useEffect(() => {
     loadCart();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
+
+  useEffect(() => {
+    const storedRate = localStorage.getItem('selectedRate');
+    if (storedRate && storedRate !== '[]') {
+      setSelectedRate(JSON.parse(storedRate));
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleShippingUpdate = (e) => {
+      const rate = e.detail;
+      setSelectedRate(rate);
+    };
+
+    window.addEventListener('shippingRateUpdate', handleShippingUpdate);
+    return () => window.removeEventListener('shippingRateUpdate', handleShippingUpdate);
+  }, []);
 
   const handleTotalChange = (newTotal) => {
     setTotalAmount(newTotal);
   };
 
+  console.log('selectedRate: ', selectedRate);
   // Check both amount and cart
   const validateCheckout = () => {
     // Skip validation on confirmation step
@@ -85,16 +107,21 @@ const CheckoutPage = () => {
         <div className="checkout-main">
           <CheckoutSteps currentStep={currentStep} />
           
-          <CheckoutForm 
-            amount={totalAmount}
-            currentStep={currentStep}
-            setStep={setCurrentStep}
-          />
+          <Elements stripe={stripePromise}>
+            <CheckoutForm 
+              amount={totalAmount}  // Changed from amount to totalAmount
+              currentStep={currentStep}
+              setStep={setCurrentStep}
+              selectedRate={selectedRate}
+              setSelectedRate={setSelectedRate}
+            />
+          </Elements>
         </div>
 
         <div className="checkout-sidebar">
           <OrderSummary 
             amount={amount} 
+            selectedRate={selectedRate}
             onTotalChange={handleTotalChange} 
           />
           <SecurityFeatures />

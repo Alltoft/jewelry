@@ -165,6 +165,8 @@ def create_shipment():
         amount = request_data['amount']
         shipper = request_data['shipper']
         recipient = request_data['recipient']
+        payment_method = request_data.get('payment_method', 'card')  # Default to card
+        payment_status = request_data.get('payment_status', 'paid')  # Default to paid
 
         global access_token, token_expiry
         if _check_token_expired():
@@ -176,7 +178,7 @@ def create_shipment():
             "X-locale": "en_MA"
         }
 
-        shipment_payload ={
+        shipment_payload = {
             "accountNumber": {
                 "value": FEDEX_ACCOUNT_NUMBER
             },
@@ -187,6 +189,17 @@ def create_shipment():
                     "amount": amount,
                     "currency": "USD"
                 },
+                # Add special instructions for Cash on Delivery
+                "specialServicesRequested": {
+                    "specialServiceTypes": ["COD"] if payment_method == 'cod' else [],
+                    "codDetail": {
+                        "codCollectionAmount": {
+                            "amount": amount,
+                            "currency": "USD"
+                        },
+                        "collectionType": "ANY" # Allows payment by cash, check, or money order
+                    } if payment_method == 'cod' else None
+                } if payment_method == 'cod' else None,
                 "shipper": {
                     "address": {
                         "streetLines": origin["address"]["streetLines"],

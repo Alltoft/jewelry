@@ -1,11 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import './ShippingForm.css';
 import { AuthContext } from '../../../context/AuthContext';
-import GoogleMaps from '../../GoogleMaps';
-import ShippingRates from './ShippingRates';
-import axios from 'axios';
 
-const ShippingForm = ({ onSubmit, initialData, cart }) => {
+const ShippingForm = ({ onSubmit, initialData }) => {
   const { user } = useContext(AuthContext);
   const [formData, setFormData] = useState(initialData || {
     firstName: '',
@@ -16,14 +13,9 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
     apartment: '',
     city: '',
     state: '',
-    zipCode: '',
-    country: 'US'
+    zipCode: ''
   });
-  const [shippingRates, setShippingRates] = useState([]);
-  const [selectedRate, setSelectedRate] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const ShippingRate = JSON.parse('[]');
 
   useEffect(() => {
     if (user) {
@@ -37,107 +29,13 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
         apartment: user.apartment || '',
         city: user.city || '',
         state: user.state || '',
-        zipCode: user.zipCode || '',
-        country: user.country || 'US'
+        zipCode: user.zipCode || ''
       }));
     }
-  }, [user]);
-
-
-
-
-  const calculatePackageDetails = () => {
-    // Default values based on cart items
-    // This should be replaced with actual calculations based on products
-    return {
-      weight: {
-        value: 1.0,
-        units: "LB"
-      },
-      dimensions: {
-        length: 10,
-        width: 10,
-        height: 10,
-        units: "IN"
-      }
-    };
-  };
-
-  const isAddressComplete = (data) => {
-    return (
-      data.address.trim() !== '' &&
-      data.city.trim() !== '' &&
-      data.state.trim() !== '' &&
-      data.zipCode.length === 5
-    );
-  };
-
-  // Add validator function
-  const hasValidZipCode = (zipCode) => {
-    return zipCode && zipCode.length === 5 && /^\d{5}$/.test(zipCode);
-  };
-
-  // Update useEffect to check zip code
-  useEffect(() => {
-    if (hasValidZipCode(formData.zipCode)) {
-      fetchShippingRates();
-    }
-  }, [formData.zipCode]);
-
-  const fetchShippingRates = async () => {
-    if (!hasValidZipCode(formData.zipCode)) return;
-    
-    setLoading(true);
-    try {
-      const response = await axios.post('/get-rates', {
-        origin: {
-          address: {
-            streetLines: ["123 Merchant Street"],
-            city: "San Francisco",
-            stateOrProvinceCode: "CA",
-            postalCode: "94105",
-            countryCode: "US"
-          }
-        },
-        destination: {
-          address: {
-            streetLines: [formData.address],
-            city: formData.city,
-            stateOrProvinceCode: "",
-            postalCode: formData.zipCode,
-            countryCode: formData.country
-          }
-        },
-        package_details: calculatePackageDetails()
-      });
-
-      const formattedRates = response.data.output.rateReplyDetails.map(rate => ({
-        serviceType: rate.serviceName,
-        transitTime: rate.transitTime,
-        amount: parseFloat(rate.ratedShipmentDetails[0].totalNetCharge),
-        guarantees: rate.serviceGuarantees || [],
-        deliveryDate: rate.deliveryDate
-      }));
-
-      setShippingRates(formattedRates);
-      setError(null);
-    } catch (err) {
-      setError('Unable to fetch shipping rates');
-      setShippingRates([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [user, initialData]);
 
   const isValidStateCode = (state) => {
     return /^[A-Z]{2}$/.test(state.toUpperCase());
-  };
-
-  const handleSelectRate = (rate) => {
-    localStorage.setItem('selectedRate', JSON.stringify(rate));
-    // Force OrderSummary update
-    const event = new CustomEvent('shippingRateUpdate', { detail: rate });
-    window.dispatchEvent(event);
   };
 
   const handleChange = (e) => {
@@ -147,7 +45,7 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
       const stateValue = value.toUpperCase();
       setFormData(prev => ({
         ...prev,
-        [name]: isValidStateCode(stateValue) ? stateValue : ''
+        [name]: isValidStateCode(stateValue) ? stateValue : stateValue.slice(0, 2)
       }));
       return;
     }
@@ -158,31 +56,36 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
     }));
   };
 
-  const handlePlaceSelected = (formattedAddress) => {
-    const newFormData = {
-      ...formData,
-      address: formattedAddress.streetLines[0],
-      city: formattedAddress.city,
-      state: formattedAddress.state,
-      zipCode: formattedAddress.zipCode,
-      country: formattedAddress.country || 'US'
-    };
-
-    setFormData(newFormData);
-    fetchShippingRates(newFormData);
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!selectedRate) {
-      setError('Please select a shipping method before continuing.');
+    
+    // Simple validation
+    if (!formData.firstName || !formData.lastName || !formData.email || 
+        !formData.phone || !formData.address || !formData.city || 
+        !formData.state || !formData.zipCode) {
+      setError('All fields are required');
       return;
     }
-    onSubmit({ ...formData, shippingRate: selectedRate });
+    
+    if (!/^\d{5}$/.test(formData.zipCode)) {
+      setError('Please enter a valid 5-digit ZIP code');
+      return;
+    }
+    
+    // Clear any previous errors
+    setError(null);
+    
+    // Submit the form
+    onSubmit(formData);
   };
 
   return (
     <form onSubmit={handleSubmit} className="shipping-form">
+      <div className="shipping-info">
+        <h2>Shipping Address</h2>
+        <p>Enter the address where you want your order to be delivered. Please note that shipping is handled by the customer.</p>
+      </div>
+      
       <div className="form-row">
         <div className="form-group">
           <label>First Name</label>
@@ -227,7 +130,7 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            placeholder='(123) 456-7890'
+            placeholder='Enter your phone number'
             required
           />
         </div>
@@ -235,21 +138,28 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
 
       <div className="form-group">
         <label>Address</label>
-        <GoogleMaps onPlaceSelected={handlePlaceSelected} />
+        <input
+          type="text"
+          name="address"
+          value={formData.address}
+          onChange={handleChange}
+          placeholder='Enter your street address'
+          required
+        />
       </div>
 
       <div className="form-group">
-        <label>Apartment, suite, etc. (optional)</label>
+        <label>Apartment, suite, etc. (Optional)</label>
         <input
           type="text"
           name="apartment"
           value={formData.apartment}
-          placeholder='Enter your apartment number'
           onChange={handleChange}
+          placeholder='Apartment, suite, unit, building, floor, etc.'
         />
       </div>
 
-      <div className="form-row three-columns">
+      <div className="form-row">
         <div className="form-group">
           <label>City</label>
           <input
@@ -257,61 +167,44 @@ const ShippingForm = ({ onSubmit, initialData, cart }) => {
             name="city"
             value={formData.city}
             onChange={handleChange}
-            placeholder='City'
+            placeholder='Enter your city'
             required
           />
         </div>
         <div className="form-group">
-          <label>State</label>
+          <label>State/Province</label>
           <input
             type="text"
             name="state"
             value={formData.state}
             onChange={handleChange}
-            placeholder='State'
+            placeholder='Enter state code (e.g., CA)'
+            maxLength={2}
+            required
           />
         </div>
         <div className="form-group">
           <label>ZIP Code</label>
           <input
             type="text"
-            id="zipCode"
             name="zipCode"
             value={formData.zipCode}
             onChange={handleChange}
-            maxLength={5}
-            pattern="[0-9]{5}"
+            placeholder='Enter your ZIP code'
             required
+            maxLength={5}
+            pattern="\d{5}"
           />
         </div>
       </div>
 
-      {loading && (
-        <div className="text-center py-4">
-          <p className="text-gray-600">Calculating shipping rates...</p>
-        </div>
-      )}
+      <div className="shipping-note">
+        <p><strong>Note:</strong> Shipping is handled within Morocco. After placing your order, our team will contact you regarding pickup or delivery arrangements.</p>
+      </div>
 
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
+      {error && <div className="error-message">{error}</div>}
 
-      {shippingRates.length > 0 && (
-        <ShippingRates
-          rates={shippingRates}
-          selectedRate={selectedRate}
-          onSelectRate={setSelectedRate}
-          onClick={handleSelectRate(selectedRate)}
-        />
-      )}
-
-      <button 
-        type="submit" 
-        className="continue-btn"
-        disabled={!selectedRate || loading}
-      >
+      <button type="submit" className="submit-button">
         Continue to Payment
       </button>
     </form>

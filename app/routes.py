@@ -1,9 +1,14 @@
 from app import app, db
 from flask import request, jsonify
+import logging
 from flask_login import current_user, login_user, logout_user, login_required
 from .models import User, Product, Order
 from datetime import datetime
 
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -72,19 +77,75 @@ def get_product(product_id):
         return jsonify({'message': 'Product not found'}), 404
     return jsonify(product.to_dict()), 200
 
-@app.route('/sold', methods=['POST'])
-def sold():
-    # remove cart items
-    # update product stock
-    # create order
-    order = Order(
-        customer_id=current_user.customer.customer_id,
-        order_status='Pending',
-        created_at=datetime.now()
-    )
-    db.session.add(order)
-    db.session.commit()
-    return jsonify({'message': 'Order created successfully'}), 201
+@app.route('/create-cash-order', methods=['POST'])
+def create_cash_order():
+    try:
+        data = request.get_json()
+        amount = data.get('amount')
+        customer_details = data.get('customer_details')
+
+        logger.info(f"Received cash order request: Amount={amount}")
+
+        # Validate required fields
+        if not amount or not customer_details:
+            logger.error("Missing required data in cash order request.")
+            return jsonify({'message': 'Missing required data'}), 400
+        
+        # Store the order in database
+        try:
+            
+            new_order = Order(
+                customer_id=current_user.customer.customer_id if current_user.is_authenticated else None,
+                order_status='Pending',
+                payment_method='cod',
+                payment_status='pending',
+                total_price=amount,
+                created_at=datetime.now()
+            )
+            db.session.add(new_order)
+            db.session.commit()
+            logger.info(f"Order {new_order.order_id} created successfully in database")
+
+            if not current_user.is_authenticated and customer_details:
+                # If user is not logged in, create a guest order
+                new_order.customer_name = customer_details.get('name')
+                new_order.customer_email = customer_details.get('email')
+                new_order.customer_phone = customer_details.get('phone')
+                new_order.customer_address = customer_details.get('address')
+                new_order.customer_city = customer_details.get('city')
+                new_order.customer_state = customer_details.get('state')
+                new_order.customer_zip = customer_details.get('zipCode')
+                new_order.customer_country = customer_details.get('country')
+                db.session.commit()
+                logger.info(f"Guest order {new_order.order_id} created successfully")
+            
+            # # Send confirmation email to customer
+            # if customer_details.get('email'):
+            # send_order_confirmation(
+            #     customer_details.get('email'),
+            #     order_id,
+            #     amount,
+            #     customer_details
+            # )
+            # logger.info(f"Confirmation email sent to {customer_details.get('email')}")
+            
+            # # Notify fulfillment team
+            # notify_fulfillment(order_id, customer_details, amount)
+            # logger.info(f"Fulfillment team notified about order {order_id}")
+        except Exception as e:
+            logger.error(f"Error processing order {new_order.order_id}: {str(e)}")
+            db.session.rollback()
+            raise
+
+        return jsonify({
+            'status': 'success',
+            'order_id': new_order.order_id,
+            'message': 'Cash on delivery order created successfully'
+        }), 200
+
+    except Exception as e:
+        logger.exception(f"Exception in create_cash_order: {str(e)}")
+        return jsonify({'message': 'An error occurred while creating cash order'}), 500
 
 
 # @app.route('/users/<int:user_id>', methods=['DELETE'])

@@ -1,195 +1,95 @@
 import React, { useState, useContext } from 'react';
-import axios from 'axios';
+import { SoldProduct, clearCart } from '../../../api';
 import { AuthContext } from '../../../context/AuthContext';
-import { CardElement } from '@stripe/react-stripe-js';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Package, Clock, ShieldCheck } from 'lucide-react';
 import './PaymentForm.css';
 
-const CARD_ELEMENT_OPTIONS = {
-  style: {
-    base: {
-      fontSize: '16px',
-      color: '#424770',
-      fontFamily: 'var(--font-body)',
-      '::placeholder': {
-        color: '#aab7c4',
-      },
-    },
-    invalid: {
-      color: '#9e2146',
-    },
-  },
-};
-
-const PaymentForm = ({ onSubmit, stripe, elements, amount, shippingDetails, setStep }) => {
+const PaymentForm = ({ onSubmit, amount, shippingDetails, setStep }) => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [cardComplete, setCardComplete] = useState(false);
   const { user } = useContext(AuthContext);
+  
+  // Simplified payload with just the essential customer information
   const payload = {
-    origin: {
-      address: {
-        streetLines: ["123 Merchant Street"],
-        city: "San Francisco",
-        stateOrProvinceCode: "CA",
-        postalCode: "94105",
-        countryCode: "US"
-      }
-    },
-    destination: {
-      address: {
-        streetLines: [shippingDetails.address],
-        city: shippingDetails.city,
-        stateOrProvinceCode: shippingDetails.state,
-        postalCode: shippingDetails.zipCode,
-        countryCode: "US"
-      }
-    },
-    package_details: {
-      weight: {
-        value: 1.0,
-        units: "LB"
-      },
-      dimensions: {
-        length: 10,
-        width: 10,
-        height: 10,
-        units: "IN"
-      }
-    },
-    service_type: localStorage.getItem('selectedRate') ? 
-      JSON.parse(localStorage.getItem('selectedRate')).serviceType : 
-      "FEDEX_GROUND",
-    amount: amount,
-    shipper: {
-      name: "John Smith",
-      email: "company@example.com",
-      phoneNumber: "1234567890",
-      companyName: "Your Company"
-    },
-    recipient: {
+    customer_details: {
       name: shippingDetails.firstName + " " + shippingDetails.lastName,
       email: shippingDetails.email,
-      phoneNumber: shippingDetails.phone
-    }
-  }
-
+      phone: shippingDetails.phone,
+      address: shippingDetails.address,
+      city: shippingDetails.city,
+      state: shippingDetails.state,
+      zipCode: shippingDetails.zipCode
+    },
+    amount: amount,
+    payment_method: 'cod',
+    payment_status: 'pending'
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!stripe || !elements) {
-      setError('Payment processing is not available. Please try again later.');
-      return;
-    }
-
-    if (!cardComplete) {
-      setError('Please complete your card information.');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 
     try {
-      // Get payment intent from your server
-      const response = await axios.post('/create-payment', {
-        amount,
-        customer_details: {
-          email: shippingDetails.email,
-          phone: shippingDetails.phone,
-        }
+      let orderCreated = false;
+      
+      // Create order with COD payment method for all users (logged in or guests)
+      const response = await SoldProduct({
+        payment_method: 'cod',
+        payment_status: 'pending',
+        customer_details: payload.customer_details,
+        amount: amount
       });
       
-      
-      const clientSecret = response.data.client_secret;
-      
-      const { error: paymentError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        {
-          payment_method: {
-            card: elements.getElement(CardElement),
-            billing_details: {
-              email: shippingDetails.email,
-              phone: shippingDetails.phone,
-            },
-          },
-        }
-      );
-
-      if (paymentError) {
-        throw new Error(paymentError.message);
+      // For non-logged in users, also store order info locally for reference
+      if (!user) {
+        localStorage.setItem('pendingOrder', JSON.stringify({
+          customer_details: payload.customer_details,
+          amount: payload.amount,
+          payment_method: 'cod',
+          payment_status: 'pending',
+          date: new Date().toISOString()
+        }));
       }
       
-      if (paymentIntent.status === 'succeeded') {
-        console.log('\n\n\n\nshippingDetails: ', payload, '\n\n\n\n');
-
-        // if (shippingDetails.email) {
-        //   await axios.post('/send-email', {
-        //     email: shippingDetails.email,
-        //     amount: amount,
-        //   });
-        // }
-        if (user) {
-          console.log('streetlines: ', shippingDetails);
-          await axios.post('/create-shipment', {
-            origin: {
-              address: {
-                streetLines: ["123 Merchant Street"],
-                city: "San Francisco",
-                stateOrProvinceCode: "CA",
-                postalCode: "94105",
-                countryCode: "US"
-              }
-            },
-            destination: {
-              address: {
-                streetLines: [shippingDetails.address],
-                city: shippingDetails.city,
-                stateOrProvinceCode: shippingDetails.state,
-                postalCode: shippingDetails.zipCode,
-                countryCode: "US"
-              }
-            },
-            package_details: {
-              weight: {
-                value: 1.0,
-                units: "LB"
-              },
-              dimensions: {
-                length: 10,
-                width: 10,
-                height: 10,
-                units: "IN"
-              }
-            },
-            service_type: localStorage.getItem('selectedRate') ? 
-              JSON.parse(localStorage.getItem('selectedRate')).serviceType : 
-              "FEDEX_GROUND",
-            amount: amount,
-            shipper: {
-              name: "John Smith",
-              email: "company@example.com",
-              phoneNumber: "1234567890",
-              companyName: "Your Company"
-            },
-            recipient: {
-              name: shippingDetails.firstName + " " + shippingDetails.lastName,
-              email: shippingDetails.email,
-              phoneNumber: shippingDetails.phone
-            }
-          });
-          await axios.post('/sold');
-          await axios.delete('cart/clear');
+      // Verify the order was actually created
+      if (response && response.data && response.data.status === 'success') {
+        orderCreated = true;
+        console.log('Order created successfully:', response.data.order_id);
+        
+        // Store order ID for reference
+        localStorage.setItem('lastOrderId', response.data.order_id);
+        
+        // Clear cart only if order creation was successful
+        try {
+          if (user) {
+            await clearCart();
+          }
+        } catch (cartErr) {
+          console.error('Failed to clear cart:', cartErr);
+          // Continue with checkout even if cart clearing fails
         }
-        localStorage.removeItem('selectedRate');
-        localStorage.removeItem('cart');
-        onSubmit(e);
       } else {
-        throw new Error('Payment failed. Please try again.');
+        throw new Error('Server returned an invalid response');
+      }
+      
+      // Only proceed if order was created successfully
+      if (orderCreated) {
+        // Clean up cart data
+        localStorage.removeItem('cart');
+        
+        // Move to confirmation step
+        onSubmit('cod');
+      } else {
+        throw new Error('Failed to create order');
       }
     } catch (err) {
-      setError(err.message);
+      console.error('Order creation error:', err);
+      setError(
+        err.response?.data?.message || 
+        err.message || 
+        'An error occurred while processing your order. Please try again.'
+      );
     } finally {
       setLoading(false);
     }
@@ -205,21 +105,44 @@ const PaymentForm = ({ onSubmit, stripe, elements, amount, shippingDetails, setS
         Back to Shipping
       </button>
 
+      <div className="payment-info">
+        <h2>Cash on Delivery</h2>
+        <p className="payment-description">
+          You'll pay for your order when it's delivered to your address. No advance payment is required.
+        </p>
+      </div>
+
       <form onSubmit={handleSubmit} className="payment-form">
-        <div className="card-element-container">
-          <label>Card Details</label>
-          <CardElement 
-            options={CARD_ELEMENT_OPTIONS} 
-            onChange={(e) => {
-              setCardComplete(e.complete);
-              if (e.error) {
-                console.log('e.error.message');
-                setError(e.error.message);
-              } else {
-                setError(null);
-              }
-            }}
-          />
+        <div className="cod-info">
+          <div className="cod-benefits">
+            <div className="cod-benefit">
+              <ShieldCheck size={20} />
+              <div>
+                <h4>Safe & Secure</h4>
+                <p>Inspect your jewelry before paying</p>
+              </div>
+            </div>
+            <div className="cod-benefit">
+              <Package size={20} />
+              <div>
+                <h4>Premium Packaging</h4>
+                <p>Delivered in our signature luxury box</p>
+              </div>
+            </div>
+            <div className="cod-benefit">
+              <Clock size={20} />
+              <div>
+                <h4>Easy Process</h4>
+                <p>Pay with cash or card to our delivery partner</p>
+              </div>
+            </div>
+          </div>
+          <div className="cod-terms">
+            <p>By placing this order, you agree to pay the full amount upon delivery. You'll need to be present at the delivery address to receive and pay for your order.</p>
+          </div>
+          <div className="cod-note">
+            <p><strong>Note:</strong> Shipping is handled by the customer. Please coordinate with our team for pickup or delivery arrangement.</p>
+          </div>
         </div>
 
         {error && (
@@ -232,12 +155,12 @@ const PaymentForm = ({ onSubmit, stripe, elements, amount, shippingDetails, setS
         <button 
           type="submit" 
           className="pay-btn"
-          disabled={loading || !stripe || !cardComplete}
+          disabled={loading}
         >
           {loading ? (
-            <span className="loading-text">Processing payment...</span>
+            <span className="loading-text">Processing order...</span>
           ) : (
-            <>Pay ${parseFloat(amount).toFixed(2)}</>
+            <>Place Order (Pay on Delivery ${parseFloat(amount).toFixed(2)})</>
           )}
         </button>
       </form>

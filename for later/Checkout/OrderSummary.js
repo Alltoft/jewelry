@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import { React, useEffect, useState }from 'react';
 import { Package } from 'lucide-react';
 
-const OrderSummary = ({ amount, onTotalChange }) => {
-  const total = parseFloat(amount);
+const OrderSummary = ({ amount, selectedRate, onTotalChange }) => {
+  const shippingCost = selectedRate ? selectedRate.amount : 0;
+  const total = parseFloat(amount) + shippingCost;
 
   useEffect(() => {
     onTotalChange(total);
@@ -19,9 +20,11 @@ const OrderSummary = ({ amount, onTotalChange }) => {
         <div className="summary-row shipping">
           <span>
             <Package size={16} />
-            Shipping
+            {selectedRate ? selectedRate.serviceType : 'Shipping'}
           </span>
-          <span>Arranged separately</span>
+          <span>
+            {selectedRate ? `$${shippingCost.toFixed(2)}` : 'Not selected'}
+          </span>
         </div>
         <div className="summary-row total">
           <span>Total</span>
@@ -30,10 +33,6 @@ const OrderSummary = ({ amount, onTotalChange }) => {
       </div>
       <div className="order-note">
         <p>Each piece is carefully packaged in our signature jewelry box</p>
-        <p className="shipping-note">
-          After your order is confirmed, our team will contact you to arrange
-          shipping and delivery.
-        </p>
       </div>
     </div>
   );

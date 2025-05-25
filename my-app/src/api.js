@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 const baseURL = 'https://api.mymeral.me'; // Adjust the base URL as needed
+// const baseURL = 'http://localhost:5000'; // Local development URL
 
 
 
@@ -16,7 +17,7 @@ export const loginUser = (data) => api.post('/login', data);
 export const logoutUser = () => api.post('/logout');
 export const getProducts = () => api.get('/products');
 export const getProduct = (productId) => api.get(`/product/${productId}`);
-export const SoldProduct = () => api.post('/sold');
+export const SoldProduct = (orderData) => api.post('/create-cash-order', orderData);
 export const getCurrentUser = () => api.get('/current_user');
 
 // Payment and Shipping endpoints

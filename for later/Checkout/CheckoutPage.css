@@ -197,18 +197,6 @@
   font-style: italic;
 }
 
-.order-note .shipping-note {
-  margin-top: 1rem;
-  padding: 0.8rem;
-  background-color: rgba(245, 247, 250, 0.7);
-  border-left: 3px solid var(--gold);
-  font-style: normal;
-  text-align: left;
-  font-size: 0.85rem;
-  line-height: 1.6;
-  color: var(--text-primary);
-}
-
 /* Security Features */
 .security-features {
   background: white;

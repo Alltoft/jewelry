@@ -1,27 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useStripe, useElements } from '@stripe/react-stripe-js';
 import ShippingForm from './ShippingForm';
 import PaymentForm from './PaymentForm';
 import ConfirmationStep from './ConfirmationStep';
 import './CheckoutForm.css';
 
 const CheckoutForm = ({ amount, currentStep, setStep }) => {
+  const stripe = useStripe();
+  const elements = useElements();
   const [shippingDetails, setShippingDetails] = useState(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
 
-  // Helper function to scroll to top and change step
-  const changeStepAndScrollToTop = (newStep) => {
-    window.scrollTo({ top: 180, behavior: 'smooth' });
-    setStep(newStep);
-  };
+  // Save the payment method when it changes
+  useEffect(() => {
+    if (selectedPaymentMethod) {
+      localStorage.setItem('paymentMethod', selectedPaymentMethod);
+    }
+  }, [selectedPaymentMethod]);
 
   const handleShippingSubmit = (formData) => {
     setShippingDetails(formData);
-    changeStepAndScrollToTop(currentStep + 1);
+    setStep(currentStep + 1);
   };
 
-  const handlePaymentSubmit = () => {
-    // Always pass 'cod' as the payment method
-    localStorage.setItem('paymentMethod', 'cod');
-    changeStepAndScrollToTop(currentStep + 1);
+  const handlePaymentSubmit = (paymentMethod = 'card') => {
+    setSelectedPaymentMethod(paymentMethod);
+    setStep(currentStep + 1);
   };
 
   const renderStep = () => {
@@ -30,20 +34,22 @@ const CheckoutForm = ({ amount, currentStep, setStep }) => {
         return (
           <ShippingForm 
             onSubmit={handleShippingSubmit} 
-            initialData={shippingDetails}
+            initialData={shippingDetails} // Pass stored data
           />
         );
       case 2:
         return (
           <PaymentForm 
             onSubmit={handlePaymentSubmit}
+            stripe={stripe}
+            elements={elements}
             amount={amount}
             shippingDetails={shippingDetails}
-            setStep={changeStepAndScrollToTop}
+            setStep={setStep}
           />
         );
       case 3:
-        return <ConfirmationStep paymentMethod="cod" />;
+        return <ConfirmationStep paymentMethod={selectedPaymentMethod} />;
       default:
         return null;
     }
