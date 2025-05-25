@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const baseURL = 'https://api.mymeral.me'; // Adjust the base URL as needed
-// const baseURL = 'http://localhost:5000'; // Local development URL
+// const baseURL = 'https://api.mymeral.me'; // Adjust the base URL as needed
+const baseURL = 'http://localhost:5000'; // Local development URL
 
 
 

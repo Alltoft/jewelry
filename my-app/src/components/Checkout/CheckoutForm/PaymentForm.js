@@ -113,35 +113,50 @@ const PaymentForm = ({ onSubmit, amount, shippingDetails, setStep }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="payment-form">
+        <div className="luxury-payment-badge">
+          <div className="luxury-badge-icon">
+            <div className="gold-circle"></div>
+          </div>
+          <span>Premium Experience</span>
+        </div>
+        
         <div className="cod-info">
           <div className="cod-benefits">
             <div className="cod-benefit">
-              <ShieldCheck size={20} />
+              <div className="benefit-icon">
+                <ShieldCheck size={22} />
+              </div>
               <div>
                 <h4>Safe & Secure</h4>
-                <p>Inspect your jewelry before paying</p>
+                <p>Inspect your exquisite jewelry before payment</p>
               </div>
             </div>
             <div className="cod-benefit">
-              <Package size={20} />
+              <div className="benefit-icon">
+                <Package size={22} />
+              </div>
               <div>
                 <h4>Premium Packaging</h4>
-                <p>Delivered in our signature luxury box</p>
+                <p>Delivered in our signature luxury jewelry box</p>
               </div>
             </div>
             <div className="cod-benefit">
-              <Clock size={20} />
+              <div className="benefit-icon">
+                <Clock size={22} />
+              </div>
               <div>
-                <h4>Easy Process</h4>
-                <p>Pay with cash or card to our delivery partner</p>
+                <h4>Personalized Service</h4>
+                <p>Pay with cash or card when you receive your jewelry</p>
               </div>
             </div>
           </div>
+          
           <div className="cod-terms">
-            <p>By placing this order, you agree to pay the full amount upon delivery. You'll need to be present at the delivery address to receive and pay for your order.</p>
+            <p>By placing this order, you agree to pay the full amount upon delivery. Our luxury jewelry consultant will contact you to arrange a convenient delivery time.</p>
           </div>
+          
           <div className="cod-note">
-            <p><strong>Note:</strong> Shipping is handled by the customer. Please coordinate with our team for pickup or delivery arrangement.</p>
+            <p><strong>Note:</strong> Shipping is arranged separately. Our team will contact you to coordinate the most suitable delivery or pickup option for your precious purchase.</p>
           </div>
         </div>
 

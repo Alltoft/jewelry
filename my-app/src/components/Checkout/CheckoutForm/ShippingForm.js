@@ -83,7 +83,11 @@ const ShippingForm = ({ onSubmit, initialData }) => {
     <form onSubmit={handleSubmit} className="shipping-form">
       <div className="shipping-info">
         <h2>Shipping Address</h2>
-        <p>Enter the address where you want your order to be delivered. Please note that shipping is handled by the customer.</p>
+        <p>Enter the address where you'd like your exquisite jewelry to be delivered. Our team will coordinate with you for the perfect delivery experience.</p>
+      </div>
+      
+      <div className="luxury-details">
+        <span>Personalized Service</span>
       </div>
       
       <div className="form-row">
@@ -96,7 +100,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             onChange={handleChange}
             placeholder='Enter your first name'
             required
+            className="luxury-input"
           />
+          <span className="input-focus-border"></span>
         </div>
         <div className="form-group">
           <label>Last Name</label>
@@ -107,7 +113,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             onChange={handleChange}
             placeholder='Enter your last name'
             required
+            className="luxury-input"
           />
+          <span className="input-focus-border"></span>
         </div>
       </div>
 
@@ -119,6 +127,7 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            className="luxury-input"
             placeholder='Enter your email'
             required
           />
@@ -132,7 +141,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             onChange={handleChange}
             placeholder='Enter your phone number'
             required
+            className="luxury-input"
           />
+          <span className="input-focus-border"></span>
         </div>
       </div>
 
@@ -145,7 +156,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
           onChange={handleChange}
           placeholder='Enter your street address'
           required
+          className="luxury-input"
         />
+        <span className="input-focus-border"></span>
       </div>
 
       <div className="form-group">
@@ -156,7 +169,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
           value={formData.apartment}
           onChange={handleChange}
           placeholder='Apartment, suite, unit, building, floor, etc.'
+          className="luxury-input"
         />
+        <span className="input-focus-border"></span>
       </div>
 
       <div className="form-row">
@@ -169,7 +184,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             onChange={handleChange}
             placeholder='Enter your city'
             required
+            className="luxury-input"
           />
+          <span className="input-focus-border"></span>
         </div>
         <div className="form-group">
           <label>State/Province</label>
@@ -181,7 +198,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             placeholder='Enter state code (e.g., CA)'
             maxLength={2}
             required
+            className="luxury-input"
           />
+          <span className="input-focus-border"></span>
         </div>
         <div className="form-group">
           <label>ZIP Code</label>
@@ -194,7 +213,9 @@ const ShippingForm = ({ onSubmit, initialData }) => {
             required
             maxLength={5}
             pattern="\d{5}"
+            className="luxury-input"
           />
+          <span className="input-focus-border"></span>
         </div>
       </div>
 

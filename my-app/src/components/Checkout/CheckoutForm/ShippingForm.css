@@ -1,57 +1,156 @@
 /* filepath: /home/alo/jewelry/my-app/src/components/Checkout/CheckoutForm/ShippingForm.css */
 .shipping-form {
   width: 100%;
+  position: relative;
 }
 
 .shipping-info {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
+  position: relative;
+}
+
+.shipping-info::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: -12px;
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+  opacity: 0.1;
+  border-radius: 50%;
 }
 
 .shipping-info h2 {
-  color: #333;
-  font-size: 1.5rem;
-  margin-bottom: 0.75rem;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-heading);
+  font-weight: 500;
+  position: relative;
+  display: inline-block;
+}
+
+.shipping-info h2::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--gold);
 }
 
 .shipping-info p {
-  color: #555;
-  font-size: 1rem;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  line-height: 1.6;
+}
+
+.luxury-details {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  margin-bottom: 2rem;
+  background: linear-gradient(to right, rgba(198, 169, 93, 0.1), rgba(255, 255, 255, 0));
+  border-radius: 50px;
+  position: relative;
+}
+
+.luxury-details::before {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.luxury-details span {
+  font-family: var(--font-heading);
+  color: var(--gold-dark);
+  font-style: italic;
+  letter-spacing: 0.5px;
+  padding-left: 10px;
+  font-size: 0.95rem;
 }
 
 .form-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-group {
-  flex: 1 1 calc(50% - 0.5rem);
-  margin-bottom: 1rem;
+  flex: 1 1 calc(50% - 0.625rem);
+  margin-bottom: 1.25rem;
+  position: relative;
 }
 
 .form-group label {
   display: block;
-  font-size: 0.9rem;
-  color: #333;
-  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.2s ease;
+}
+
+.form-group:focus-within label {
+  color: var(--gold-dark);
+}
+
+.form-group {
+  position: relative;
 }
 
 .form-group input,
 .form-group select {
   width: 100%;
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 1px solid #D1D5DB;
-  border-radius: var(--border-radius);
-  transition: border-color 0.3s ease;
+  padding: 0.75rem 0.65rem;
+  font-size: 0.95rem;
+  border: 1px solid var(--marble-medium);
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-group .luxury-input {
+  border: 1px solid rgba(198, 169, 93, 0.2);
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1.1rem 0.85rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+}
+
+.form-group .input-focus-border {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-hover) 0%, var(--gold) 100%);
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+  opacity: 0;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #B8860B; /* Gold */
-  box-shadow: 0 0 0 2px rgba(184, 134, 11, 0.1);
+  border-color: rgba(198, 169, 93, 0.4);
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+.form-group input:focus + .input-focus-border,
+.form-group input:not(:placeholder-shown) + .input-focus-border {
+  width: 100%;
+  opacity: 1;
 }
 
 .error-message {
@@ -66,20 +165,44 @@
 
 .submit-button {
   width: 100%;
-  padding: 1rem;
-  background-color: #B8860B;
+  padding: 1.1rem;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
   color: white;
   border: none;
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  font-weight: 600;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 1px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 1rem;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+  box-shadow: 0 4px 10px rgba(198, 169, 93, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    rgba(255, 255, 255, 0) 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    rgba(255, 255, 255, 0) 100%);
+  transition: all 0.6s ease;
 }
 
 .submit-button:hover {
-  background-color: #8B6914;
+  background: linear-gradient(135deg, var(--gold-hover) 0%, var(--gold) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(198, 169, 93, 0.3);
+}
+
+.submit-button:hover::before {
+  left: 100%;
 }
 
 .shipping-note {

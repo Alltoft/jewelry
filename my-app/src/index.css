@@ -1,22 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
 
 :root {
-  /* Main color palette */
+  /* Luxury color palette */
   --primary-color: #8B7355;      /* Marble white - main brand color */
   --secondary-color: #606060;    /* Antique bronze */
   --accent-color: #2F4F4F;       /* Deep slate - sophisticated accent */
   
-  /* Marble theme colors */
+  /* Enhanced luxury marble theme */
   --marble-light: #F5F5F5;       /* Light marble */
   --marble-medium: #E5E5E5;      /* Medium marble */
   --marble-dark: #CCCCCC;        /* Dark marble veining */
   --marble-shadow: #A9A9A9;      /* Marble shadow tone */
   
-  /* Luxury accent colors */
-  --emerald: #0B6B59;           /* Deep emerald */
-  --onyx: #353535;              /* Rich black */
+  /* Premium accent colors */
+  --emerald: #0D6D60;           /* Deep emerald - slightly richer */
+  --onyx: #1A1A1A;              /* Rich black - deeper for more contrast */
   --pearl: #F8F6F4;             /* Pearl white */
   --platinum: #E5E4E2;          /* Platinum accent */
+  --gold: #C6A95D;              /* Rich gold */
+  --gold-hover: #D5B76A;        /* Gold hover state */
+  --gold-dark: #9F864A;         /* Dark gold for text */
+  --copper: #B87333;            /* Warm copper accent */
   
   /* Text colors */
   --text-primary: #2C2C2C;      /* Deep charcoal for headings */
